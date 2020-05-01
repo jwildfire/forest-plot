@@ -1,0 +1,34 @@
+<html>
+
+<head>
+    <title>Forest Plot </title>
+    <meta http-equiv='Content-Type' content='text/html; charset = utf-8'>
+    <script type='text/javascript' src='https://d3js.org/d3.v3.js'></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+        <script type='text/javascript' src='//cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js'></script>
+    <script type='text/javascript' src='forestplot.js'></script>
+    
+    
+    <link type='text/css' rel='stylesheet' href='index.css'>
+
+    <link type='text/css' rel='stylesheet' href='//cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css'>
+
+    
+</head>
+
+<body>
+    <div id='title'>Forest Plot</div>
+    <div id='subtitle'>Forest plot generated from <a href="https://github.com/nikhil-nomula/volcano_plot/blob/master/src/data/data.json">analysis results data set</a>.</div>
+    <div id="details"></div>
+
+    <div id='container'></div>
+
+</body>
+
+<script type='text/javascript'>
+    d3.json('data/data.json', function (aes) {
+        forestplot(aes,"#container",["pbo","high","low"], [["low","pbo"],["high","pbo"]])
+    })
+</script>
+
+</html>
