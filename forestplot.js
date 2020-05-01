@@ -50,7 +50,7 @@ function forestplot(data, element, groups, pairs){
             .style("color", d => d[pair_p] < 0.05 ? "black" : "#ccc") 
         })
 
-        $('#container table').DataTable({ "paging": false});
+        $('#container table').DataTable({ "paging": false, "order": [[2, "desc"]]});
     }
 
     chart.draw(chart.raw,groups, pairs)
