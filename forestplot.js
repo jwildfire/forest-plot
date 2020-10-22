@@ -1,6 +1,6 @@
 function forestplot(data, element, groups, pairs){
     let chart = {}
-    chart.wrap = d3.select(element)
+    chart.wrap = d3.select(element).attr("class", "forestplot")
     chart.config= {};
     chart.controls = d3.select(element).append("div").attr("class","controls")
     chart.table = chart.wrap.append("table")
@@ -43,8 +43,6 @@ function forestplot(data, element, groups, pairs){
     let all_ors = d3.merge(data.map(m => m.pairs.map(n => n.or)))
     let or_extent = d3.extent(all_ors)
     let orScale = d3.scale.linear().range([10, 110]).domain(or_extent)
-
-    console.log(pairs)
     
     //header   
     chart.draw = function(data,groups,pairs){
@@ -90,6 +88,7 @@ function forestplot(data, element, groups, pairs){
             .attr("transform", "translate(0,20)")
             .call(orAxis);
         */
+
         chart.body = chart.table.append("tbody")
         chart.rows = chart.body.selectAll("tr").data(data).enter().append("tr")
         chart.rows.append("td").attr("class","soc")
@@ -208,7 +207,7 @@ function forestplot(data, element, groups, pairs){
 
 
 
-        let table = $('#container table').DataTable({ 
+        let table = $('.forestplot table').DataTable({ 
             "dom": '<"top"if>rt<"clear">',
             "paging": false, 
             "order": [[2, "desc"]]
@@ -271,14 +270,7 @@ function forestplot(data, element, groups, pairs){
             return comp_flag & incidence_flag
             }
         );
-
-
-
     }
 
     chart.draw(chart.raw,groups, pairs)
-
-
-
-
 }
