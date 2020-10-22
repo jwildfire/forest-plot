@@ -57,3 +57,13 @@
 .axis {
     font-size:10px;
 }
+
+.slider-wrap{
+width: 300px;
+padding-right:2em;
+display:inline-block;
+}
+
+.label{
+    font-weight:1000;
+}
