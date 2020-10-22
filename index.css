@@ -1,4 +1,5 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,300);
+
 * {
     padding: 0;
     margin: 0;
@@ -42,24 +43,17 @@
     display: inline-block;
 }
 
-td {
-    padding-left:0.4em;
+.axis path {
+    fill:none;
+    stroke:none;
 }
 
-       .axis path {
-            fill:none;
-            stroke:none;
-        }
+.axis line {
+    fill: none;
+    stroke: #999;
+    shape-rendering: crispEdges;
+}
 
-        .axis line {
-           fill: none;
-           stroke: #999;
-           shape-rendering: crispEdges;
-        }
-
-       .axis {
-            font-size:10px;
-        }
-
-        .axis svg{
-        }
+.axis {
+    font-size:10px;
+}

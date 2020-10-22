@@ -31,7 +31,7 @@ function forestplot(data, element, groups, pairs){
 
     //define scales
     let colorScale = d3.scale.ordinal()
-        .range(['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf'])
+        .range(['#999','#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf'])
         .domain(groups)
 
     let all_percents = d3.merge(data.map(m => m.groups.map(n => n.percent)))
@@ -43,25 +43,26 @@ function forestplot(data, element, groups, pairs){
     let orScale = d3.scale.linear().range([10, 110]).domain(or_extent)
 
     console.log(pairs)
-    //header   
     
+    //header   
     chart.draw = function(data,groups,pairs){
         chart.table.selectAll("*").remove()
         chart.head = chart.table.append("thead").style("text-align", "center")
         chart.head1=chart.head.append("tr")
-        chart.head1.append("td")
-        chart.head1.append("td")
-        chart.head1.append("td").text("Groups").attr("colspan",groups.length+1)
-        chart.head1.append("td").text("Comparisons").attr("colspan", pairs.length+1)
+        chart.head1.append("th")
+        chart.head1.append("th")
+        chart.head1.append("th").text("Groups").attr("colspan",groups.length+1)
+        chart.head1.append("th").text("Comparisons").attr("colspan", pairs.length+1)
 
         chart.head2 = chart.head.append("tr")
         chart.head2.append("th").text("System Organ Class")
         chart.head2.append("th").text("Preferred Term")
         chart.head2.selectAll("th.group").data(groups).enter().append("th").text(d=>d)
-        var groupAxis = d3.svg.axis().scale(groupScale).ticks(6).orient("top");
+        chart.head2.append("th").html('Rates <br><small>['+percent_extent[0]+", "+percent_extent[1]+"]</small>")
+        /*
+        var groupAxis = d3.svg.axis().scale(groupScale).ticks(6).orient("top").;
         chart.head2.append("th")
-            .style('padding-right', 10)
-            .style('padding-left', 10)
+            .attr("class","axis")
             .append('svg')
             .attr('height', 20)
             .attr('width', 120)
@@ -69,13 +70,16 @@ function forestplot(data, element, groups, pairs){
             .attr('class', 'axis percent')
             .attr("transform", "translate(0,20)")
             .call(groupAxis)
-            
+        */  
 
         chart.head2.selectAll("th.pairs").data(pairs).enter().append("th").text(d => d[0]+" vs."+d[1])
         var orAxis = d3.svg.axis().scale(orScale).ticks(6).orient("top");
+
+        chart.head2.append("th").html('Diffs <br><small>['+or_extent[0]+", "+or_extent[1]+"]</small>")
+
+        /*
         chart.head2.append("th")
-            .style('padding-right', 10)
-            .style('padding-left', 10)
+            .attr("class","axis")
             .append('svg')
             .attr('height', '20')
             .attr('width', 100)
@@ -83,7 +87,7 @@ function forestplot(data, element, groups, pairs){
             .attr('class', 'axis percent')
             .attr("transform", "translate(0,20)")
             .call(orAxis);
-
+        */
         chart.body = chart.table.append("tbody")
         chart.rows = chart.body.selectAll("tr").data(data).enter().append("tr")
         chart.rows.append("td").attr("class","soc")
@@ -135,7 +139,7 @@ function forestplot(data, element, groups, pairs){
         .style("font-weight",d=>d.p<0.05 ? "bold" : null) 
         .style("color", d => d.p < 0.05 ? "black" : "#ccc") 
         
-       
+
         var diffPlots = chart.rows.append("td")
             .attr('class','diffplot')
             .append('svg')
@@ -206,4 +210,5 @@ function forestplot(data, element, groups, pairs){
     }
 
     chart.draw(chart.raw,groups, pairs)
+    d3.select(table).classed("data-table")
 }
