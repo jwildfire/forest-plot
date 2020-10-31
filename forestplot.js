@@ -38,11 +38,11 @@ function forestplot(data, element, groups, pairs){
 
     let all_percents = d3.merge(data.map(m => m.groups.map(n => n.percent)))
     let percent_extent = d3.extent(all_percents)
-    let groupScale = d3.scale.linear().range([10, 200]).domain(percent_extent)
+    let groupScale = d3.scale.linear().range([10, 110]).domain(percent_extent)
 
     let all_ors = d3.merge(data.map(m => m.pairs.map(n => n.or)))
     let or_extent = d3.extent(all_ors)
-    let orScale = d3.scale.linear().range([10, 200]).domain(or_extent)
+    let orScale = d3.scale.linear().range([10, 300]).domain(or_extent)
     
     //header   
     chart.draw = function(data,groups,pairs){
@@ -145,9 +145,11 @@ function forestplot(data, element, groups, pairs){
             .attr('class','diffplot')
             .append('svg')
             .attr('height', 20)
+            // make the width 100% of the table
+            // but we also need to change the scale to the width
             .attr('width', "100%")
             .append('g')
-
+            // do we need to apply some kind of transform?
         
 
         var diffPoints = diffPlots.selectAll('g').data(d=>d.pairs.filter(f=>f.or)).enter().append('g');
