@@ -210,8 +210,19 @@ function forestplot(data, element, groups, pairs){
         let table = $('.forestplot table').DataTable({ 
             "dom": '<"top"if>rt<"clear">',
             "paging": false, 
-            "order": [[2, "desc"]]
-        });
+            "order": [[2, "desc"]],
+            "columns": [
+                { "width": "5%" },
+                { "width": "5%" },
+                { "width": "5%" },
+                { "width": "5%" },
+                { "width": "5%" },
+                { "width": "5%" },
+                { "width": "5%" },
+                { "width": "5%" },
+                { "width": "60%" },
+              ]
+        }).columns.adjust().draw();
 
         // make controls
         let indidenceControl = chart.controls.append("div").attr("class","slider-wrap")
