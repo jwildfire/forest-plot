@@ -113,7 +113,7 @@ function forestplot(data, element, groups, pairs){
         
 
         //group plot
-        chart.groupPlot = chart.rows.append("td","group-plot").append("svg").attr("height",20).attr("width",120)
+        chart.groupPlot = chart.rows.append("td","group-plot").append("svg").attr("height",20).attr("width","100%")
         chart.groupPlot.selectAll("circle")
         .data(d=>d.groups)
         .enter()
@@ -145,7 +145,7 @@ function forestplot(data, element, groups, pairs){
             .attr('class','diffplot')
             .append('svg')
             .attr('height', 20)
-            .attr('width', 120)
+            .attr('width', "100%")
             .append('g')
 
         
@@ -212,15 +212,15 @@ function forestplot(data, element, groups, pairs){
             "paging": false, 
             "order": [[2, "desc"]],
             "columns": [
+                { "width": "2%" },
+                { "width": "2%" },
                 { "width": "5%" },
                 { "width": "5%" },
                 { "width": "5%" },
+                { "width": "25%" },
                 { "width": "5%" },
                 { "width": "5%" },
-                { "width": "5%" },
-                { "width": "5%" },
-                { "width": "5%" },
-                { "width": "60%" },
+                { "width": "46%" },
               ]
         }).columns.adjust().draw();
 
