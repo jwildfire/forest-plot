@@ -38,11 +38,11 @@ function forestplot(data, element, groups, pairs){
 
     let all_percents = d3.merge(data.map(m => m.groups.map(n => n.percent)))
     let percent_extent = d3.extent(all_percents)
-    let groupScale = d3.scale.linear().range([10, 110]).domain(percent_extent)
+    let groupScale = d3.scale.linear().range([10, 200]).domain(percent_extent)
 
     let all_ors = d3.merge(data.map(m => m.pairs.map(n => n.or)))
     let or_extent = d3.extent(all_ors)
-    let orScale = d3.scale.linear().range([10, 110]).domain(or_extent)
+    let orScale = d3.scale.linear().range([10, 200]).domain(or_extent)
     
     //header   
     chart.draw = function(data,groups,pairs){
@@ -65,7 +65,7 @@ function forestplot(data, element, groups, pairs){
             .attr("class","axis")
             .append('svg')
             .attr('height', 20)
-            .attr('width', 120)
+            .attr('width', "100%")
             .append('svg:g')
             .attr('class', 'axis percent')
             .attr("transform", "translate(0,20)")
@@ -75,19 +75,19 @@ function forestplot(data, element, groups, pairs){
         chart.head2.selectAll("th.pairs").data(pairs).enter().append("th").text(d => d[0]+" vs."+d[1])
         var orAxis = d3.svg.axis().scale(orScale).ticks(6).orient("top");
 
-        chart.head2.append("th").html('Diffs <br><small>['+or_extent[0]+", "+or_extent[1]+"]</small>")
+        chart.head2.append("th").html('Diffs <br><small>['+or_extent[0]+", "+or_extent[1]+"]</small>").attr("class", "diffs")
 
-        /*
-        chart.head2.append("th")
+        
+        chart.head2.select(".diffs")
             .attr("class","axis")
             .append('svg')
             .attr('height', '20')
-            .attr('width', 100)
+            .attr('width', "100%")
             .append('svg:g')
             .attr('class', 'axis percent')
             .attr("transform", "translate(0,20)")
             .call(orAxis);
-        */
+        
 
         chart.body = chart.table.append("tbody")
         chart.rows = chart.body.selectAll("tr").data(data).enter().append("tr")
@@ -217,7 +217,7 @@ function forestplot(data, element, groups, pairs){
                 { "width": "5%" },
                 { "width": "5%" },
                 { "width": "5%" },
-                { "width": "25%" },
+                { "width": "30%" },
                 { "width": "5%" },
                 { "width": "5%" },
                 { "width": "46%" },
