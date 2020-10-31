@@ -58,10 +58,10 @@ function forestplot(data, element, groups, pairs){
         chart.head2.append("th").text("System Organ Class")
         chart.head2.append("th").text("Preferred Term")
         chart.head2.selectAll("th.group").data(groups).enter().append("th").text(d=>d)
-        chart.head2.append("th").html('Rates <br><small>['+percent_extent[0]+", "+percent_extent[1]+"]</small>")
-        /*
-        var groupAxis = d3.svg.axis().scale(groupScale).ticks(6).orient("top").;
-        chart.head2.append("th")
+        chart.head2.append("th").html('Rates <br><small>['+percent_extent[0]+", "+percent_extent[1]+"]</small>").attr("class", "rates")
+        
+        var groupAxis = d3.svg.axis().scale(groupScale).ticks(6).orient("top");
+        chart.head2.select(".rates")
             .attr("class","axis")
             .append('svg')
             .attr('height', 20)
@@ -70,7 +70,7 @@ function forestplot(data, element, groups, pairs){
             .attr('class', 'axis percent')
             .attr("transform", "translate(0,20)")
             .call(groupAxis)
-        */  
+        * 
 
         chart.head2.selectAll("th.pairs").data(pairs).enter().append("th").text(d => d[0]+" vs."+d[1])
         var orAxis = d3.svg.axis().scale(orScale).ticks(6).orient("top");
