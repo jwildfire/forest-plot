@@ -206,22 +206,13 @@ function forestplot(data, element, groups, pairs){
             .attr('stroke-opacity', 0.3);
 
 
-        let group_number = chart.groups.length/15;
-        console.log(group_number)
-        let group_width = chart.groups.map(x => ({width: `${group_number}%`}));
-        console.log(group_width)
         let table = $('.forestplot table').DataTable({ 
             "dom": '<"top"if>rt<"clear">',
             "paging": false, 
             "order": [[2, "desc"]],
-            "columns": [
-                { "width": "2%" },
-                { "width": "2%" },
-                group_width,
-                { "width": "25%" },
-                { "width": "5%" },
-                { "width": "5%" },
-                { "width": "46%" },
+            "columnDefs": [
+                { "width": "120px", "targets":  3 + chart.groups.length},
+                { "width": "300px", "targets":  3 + chart.groups.length + chart.pairs.length}
               ]
         }).columns.adjust().draw();
 
