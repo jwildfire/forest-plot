@@ -68,7 +68,7 @@ function forestplot(data, element, groups, pairs){
             .attr('width', 120)
             .append('svg:g')
             .attr('class', 'axis percent')
-            .attr("transform", "translate(0,22)")
+            .attr("transform", "translate(0,20)")
             .call(groupAxis)
 
         chart.head2.selectAll("th.pairs").data(pairs).enter().append("th").text(d => d[0]+" vs."+d[1])
