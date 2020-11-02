@@ -42,7 +42,7 @@ function forestplot(data, element, groups, pairs){
 
     let all_ors = d3.merge(data.map(m => m.pairs.map(n => n.or)))
     let or_extent = d3.extent(all_ors)
-    let orScale = d3.scale.linear().range([10, 110]).domain(or_extent)
+    let orScale = d3.scale.linear().range([10, 290]).domain(or_extent)
     
     //header   
     chart.draw = function(data,groups,pairs){
@@ -113,7 +113,7 @@ function forestplot(data, element, groups, pairs){
         
 
         //group plot
-        chart.groupPlot = chart.rows.append("td","group-plot").append("svg").attr("height",20).attr("width","100%")
+        chart.groupPlot = chart.rows.append("td","group-plot").append("svg").attr("height",20).attr("width",120)
         chart.groupPlot.selectAll("circle")
         .data(d=>d.groups)
         .enter()
@@ -145,7 +145,7 @@ function forestplot(data, element, groups, pairs){
             .attr('class','diffplot')
             .append('svg')
             .attr('height', 20)
-            .attr('width', "100%")
+            .attr('width', 300)
             .append('g')
 
         
