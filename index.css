@@ -43,21 +43,6 @@
     display: inline-block;
 }
 
-.axis path {
-    fill:none;
-    stroke:none;
-}
-
-.axis line {
-    fill: none;
-    stroke: #999;
-    shape-rendering: crispEdges;
-}
-
-.axis {
-    font-size:10px;
-}
-
 .slider-wrap{
 width: 300px;
 padding-right:2em;
@@ -66,4 +51,29 @@ display:inline-block;
 
 .label{
     font-weight:1000;
+}
+
+table.dataTable thead th.axis{
+    padding-bottom: 0px;
+    vertical-align:bottom;
+}
+
+table.dataTable thead .axis svg {
+    font-size:10
+}
+
+table.dataTable thead .axis path {
+    fill:none;
+    stroke:none;
+}
+
+table.dataTable thead .axis line {
+    fill: none;
+    stroke: #999;
+    shape-rendering: crispEdges;
+}
+
+/* Match padding for header */
+table.dataTable tbody td.plot{
+    padding:10px 18px
 }
