@@ -42,8 +42,9 @@ function forestplot(data, element, groups, pairs){
 
     let all_ors = d3.merge(data.map(m => m.pairs.map(n => n.or)))
     let or_extent = d3.extent(all_ors)
-    let orScale = d3.scale.linear().range([10, 290]).domain(or_extent)
-    
+    let orScale = d3.scale.linear().range([10, 290]).domain([0,or_extent[1]])
+
+
     //header   
     chart.draw = function(data,groups,pairs){
         chart.table.selectAll("*").remove()
@@ -58,11 +59,9 @@ function forestplot(data, element, groups, pairs){
         chart.head2.append("th").text("System Organ Class")
         chart.head2.append("th").text("Preferred Term")
         chart.head2.selectAll("th.group").data(groups).enter().append("th").text(d=>d)
-        chart.head2.append("th").html('Rates').attr("class", "rates")
-        
+
         var groupAxis = d3.svg.axis().scale(groupScale).ticks(6).orient("top");
-        chart.head2.select(".rates")
-            .attr("class","axis")
+        chart.head2.append("th").text("Rates").attr("class", "rates axis")
             .append('svg')
             .attr('height', 20)
             .attr('width', 120)
@@ -74,10 +73,7 @@ function forestplot(data, element, groups, pairs){
         chart.head2.selectAll("th.pairs").data(pairs).enter().append("th").text(d => d[0]+" vs."+d[1])
         var orAxis = d3.svg.axis().scale(orScale).ticks(6).orient("top");
 
-        chart.head2.append("th").html('Diffs').attr("class", "diffs");
-        
-        chart.head2.select(".diffs")
-            .attr("class","axis")
+        chart.head2.append("th").text("Comparison").attr("class", "diffs axis")
             .append('svg')
             .attr('height', '20')
             .attr('width', 300)
@@ -110,7 +106,7 @@ function forestplot(data, element, groups, pairs){
         
 
         //group plot
-        chart.groupPlot = chart.rows.append("td","group-plot").append("svg").attr("height",20).attr("width",120)
+        chart.groupPlot = chart.rows.append("td").attr("class","group-plot plot").append("svg").attr("height",20).attr("width",120)
         chart.groupPlot.selectAll("circle")
         .data(d=>d.groups)
         .enter()
@@ -139,13 +135,11 @@ function forestplot(data, element, groups, pairs){
         
 
         var diffPlots = chart.rows.append("td")
-            .attr('class','diffplot')
+            .attr('class','diffplot plot')
             .append('svg')
             .attr('height', 20)
             .attr('width', 300)
             .append('g')
-
-        
 
         var diffPoints = diffPlots.selectAll('g').data(d=>d.pairs.filter(f=>f.or)).enter().append('g');
         diffPoints.append('title').text(d=>d.label+": "+d.or+" (p="+d.p+")");
@@ -208,9 +202,9 @@ function forestplot(data, element, groups, pairs){
             "paging": false, 
             "order": [[2, "desc"]],
             "columnDefs": [
-                { "width": "120px", "targets":  3 + chart.groups.length},
-                { "width": "300px", "targets":  3 + chart.groups.length + chart.pairs.length}
-              ]
+                { "width": "120px", "targets":  2 + chart.groups.length},
+                { "width": "300px", "targets":  2 + chart.groups.length + 1 + chart.pairs.length}
+            ]
         }).columns.adjust().draw();
 
         // make controls
