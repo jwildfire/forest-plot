@@ -42,7 +42,7 @@ function forestplot(data, element, groups, pairs){
 
     let all_ors = d3.merge(data.map(m => m.pairs.map(n => n.or)))
     let or_extent = d3.extent(all_ors)
-    let orScale = d3.scale.linear().range([10, 110]).domain(or_extent)
+    let orScale = d3.scale.linear().range([10, 290]).domain(or_extent)
     
     //header   
     chart.draw = function(data,groups,pairs){
@@ -145,7 +145,7 @@ function forestplot(data, element, groups, pairs){
             .attr('class','diffplot')
             .append('svg')
             .attr('height', 20)
-            .attr('width', 120)
+            .attr('width', 300)
             .append('g')
 
         
@@ -206,12 +206,15 @@ function forestplot(data, element, groups, pairs){
             .attr('stroke-opacity', 0.3);
 
 
-
         let table = $('.forestplot table').DataTable({ 
             "dom": '<"top"if>rt<"clear">',
             "paging": false, 
-            "order": [[2, "desc"]]
-        });
+            "order": [[2, "desc"]],
+            "columnDefs": [
+                { "width": "120px", "targets":  3 + chart.groups.length},
+                { "width": "300px", "targets":  3 + chart.groups.length + chart.pairs.length}
+              ]
+        }).columns.adjust().draw();
 
         // make controls
         let indidenceControl = chart.controls.append("div").attr("class","slider-wrap")
