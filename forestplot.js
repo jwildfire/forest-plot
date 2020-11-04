@@ -132,23 +132,17 @@ function forestplot(data, element, groups, pairs){
         .attr("title",d=>"p="+d.p)
         .style("font-weight",d=>d.p<0.05 ? "bold" : null) 
         .style("color", d => d.p < 0.05 ? "black" : "#ccc") 
-        
 
         var diffPlots = chart.rows.append("td")
             .attr('class','diffplot plot')
             .append('svg')
-            .attr('height', 40)
+            .attr('height', 20 * chart.pairs.length)
             .attr('width', 300)
             .append('g')
 
         var diffPoints = diffPlots.selectAll('g').data(d=>d.pairs.filter(f=>f.or)).enter().append('g')
-        .attr("transform", function (d, i) {
-            if(i === 0) {
-              return "translate(0,0)"
-          } else {
-              return "translate(0,15)"
-          }});
-          
+        .attr("transform", function (d, i) { return `translate(0, ${i * 15})` })
+
         diffPoints.append('title').text(d=>d.label+": "+d.or+" (p="+d.p+")");
         //Append graphical rate differences.
         var triangle = d3.svg
