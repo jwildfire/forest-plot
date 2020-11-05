@@ -22,7 +22,7 @@
 	"high_pbo_ci_high": null,
 	"high_pbo_ci_low": null,
 	"low_pbo_ci_high": 0,
-	"low_pbo_ci_low": 1
+	"low_pbo_ci_low": 7
 }, {
 	"soc": "Blood and lymphatic system disorders",
 	"term": "Leukopenia",
@@ -45,9 +45,9 @@
 	"high_pbo_or": 1.3112,
 	"high_pbo_pval": 0.4698,
 	"high_pbo_ci_high": 0,
-	"high_pbo_ci_low": 1,
-	"low_pbo_ci_high": 0.5,
-	"low_pbo_ci_low": 3
+	"high_pbo_ci_low": 4,
+	"low_pbo_ci_high": 6,
+	"low_pbo_ci_low": 0.5
 }, {
 	"soc": "Blood and lymphatic system disorders",
 	"term": "Neutropenia",
