@@ -203,18 +203,15 @@ function forestplot(data, element, groups, pairs){
             .attr('stroke', d => colorScale(d.group2))
             .attr('stroke-opacity', 0.3);
 
-        diffPoints.append("g")
-        .selectAll("myline")
-        .data(d=>d.pairs)
-        .join("line")
-        // not quite sure what these should be honestly
-        .attr("x1", d => orScale(d.ci_high))
-        .attr("x2", d => orScale(d.ci_low))
-        .attr("y1",d => y(1))
-        .attr("y2",d => y(1))
-        .attr("stroke", "#0015BC")
-        .attr("stroke-width", "1px")
-        .style("opacity", 0.6);
+        diffPlots.selectAll('g').data(d=>d.pairs).enter().append('g')
+            .join("line")
+            // not quite sure what these should be honestly
+            .attr("x1", d => orScale(d.ci_high))
+            .attr("x2", d => orScale(d.ci_low))
+            //.attr("y1", function (d) { return d.y; })
+            //.attr("y2", function (d) { return d.y; })
+            .attr("stroke-width", "1px")
+            .style("opacity", 0.6);
 
 
         let table = $('.forestplot table').DataTable({ 
