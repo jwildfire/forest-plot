@@ -211,8 +211,9 @@ function forestplot(data, element, groups, pairs){
             //.attr("y1", function (d) { return d.y; })
             //.attr("y2", function (d) { return d.y; })
             .attr("stroke-width", "1px")
-            .style("opacity", 0.6);
-
+            .style("opacity", 0.6)
+            // then give them the same offset as before
+            .attr("transform", function (d, i) { return `translate(0, ${i * 15})` })
 
         let table = $('.forestplot table').DataTable({ 
             "dom": '<"top"if>rt<"clear">',
