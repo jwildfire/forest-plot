@@ -157,6 +157,7 @@ function forestplot(data, element, groups, pairs){
             .attr("y2", 20 / 2)
             .attr("stroke-width", "1px")
             .attr("stroke", "black")
+            .attr("opacity", "0.4")
             .attr("transform", function (d, i) { return `translate(0, ${i * 15})` })
 
         var diffPoints = diffPlots.selectAll('g').data(d=>d.pairs.filter(f=>f.or)).enter().append('g')
