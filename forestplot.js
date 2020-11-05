@@ -146,6 +146,19 @@ function forestplot(data, element, groups, pairs){
             .attr('width', 300)
             .append('g')
 
+        diffPlots.selectAll("myline")
+            .data(d=>d.pairs)
+            .enter()
+            .append("line")
+            .attr("x1", d => orScale(d.ci_high))
+            .attr("x2", d => orScale(d.ci_low))
+            // because this is what we use for the diamonds?
+            .attr("y1", 20 / 2)
+            .attr("y2", 20 / 2)
+            .attr("stroke-width", "1px")
+            .attr("stroke", "black")
+            .attr("transform", function (d, i) { return `translate(0, ${i * 15})` })
+
         var diffPoints = diffPlots.selectAll('g').data(d=>d.pairs.filter(f=>f.or)).enter().append('g')
         .attr("transform", function (d, i) { return `translate(0, ${i * 15})` })
 
@@ -202,18 +215,6 @@ function forestplot(data, element, groups, pairs){
             .attr('fill', d => colorScale(d.group2))
             .attr('stroke', d => colorScale(d.group2))
             .attr('stroke-opacity', 0.3);
-
-        diffPlots.selectAll('g').data(d=>d.pairs).enter().append('g')
-            .join("line")
-            // not quite sure what these should be honestly
-            .attr("x1", d => orScale(d.ci_high))
-            .attr("x2", d => orScale(d.ci_low))
-            //.attr("y1", function (d) { return d.y; })
-            //.attr("y2", function (d) { return d.y; })
-            .attr("stroke-width", "1px")
-            .style("opacity", 0.6)
-            // then give them the same offset as before
-            .attr("transform", function (d, i) { return `translate(0, ${i * 15})` })
 
         let table = $('.forestplot table').DataTable({ 
             "dom": '<"top"if>rt<"clear">',
