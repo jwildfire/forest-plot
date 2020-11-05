@@ -20,16 +20,22 @@ function forestplot(data, element, groups, pairs){
         })
         d.pairs = pairs.map(function (pair) { 
             let pair_id = pair[0] + "_" + pair[1] 
+            console.log(pair_id)
             return { 
                 key: pair_id, 
                 group1:pair[0],
                 group2:pair[1],
                 label:pair[0]+" vs. "+pair[1],
                 or: d[pair_id + "_or"],
-                p: d[pair_id+ "_pval"]
+                p: d[pair_id+ "_pval"],
+                // add the high and low numbers per pair
+                ci_high: d[pair_id + "_ci_high"],
+                ci_low: d[pair_id+ "_ci_low"],
             }
         })
     })
+
+    console.log(chart.raw)
 
     //define scales
     let colorScale = d3.scale.ordinal()
@@ -196,6 +202,19 @@ function forestplot(data, element, groups, pairs){
             .attr('fill', d => colorScale(d.group2))
             .attr('stroke', d => colorScale(d.group2))
             .attr('stroke-opacity', 0.3);
+
+        diffPoints.append("g")
+        .selectAll("myline")
+        .data(d=>d.pairs)
+        .join("line")
+        // not quite sure what these should be honestly
+        .attr("x1", d => orScale(d.ci_high))
+        .attr("x2", d => orScale(d.ci_low))
+        .attr("y1",d => y(1))
+        .attr("y2",d => y(1))
+        .attr("stroke", "#0015BC")
+        .attr("stroke-width", "1px")
+        .style("opacity", 0.6);
 
 
         let table = $('.forestplot table').DataTable({ 
