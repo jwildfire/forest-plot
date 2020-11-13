@@ -1,0 +1,45 @@
+{
+    "name": "forest-plot",
+    "description": "Forest plot using analysis results data",
+    "version": "0.2.0",
+    "author": "Rho, Inc.",
+    "license": "MIT",
+    "homepage": "https://github.com/jwildfire/forest-plot",
+    "module": "./src/index.js",
+    "main": "./forestPlot.js",
+    "keywords": [
+        ""
+    ],
+    "dependencies": {
+        "d3": "^3"
+    },
+    "scripts": {
+        "build": "npm audit fix && npm run bundle && npm run format",
+        "build-offline": "npm run bundle && npm run format",
+        "bundle": "rollup -c",
+        "format": "npm run format-src && npm run format-bundle",
+        "format-src": "prettier --print-width=100 --tab-width=4 --single-quote --write \"./src/**/*.js\"",
+        "watch": "rollup -c -w",
+        "format-bundle": "prettier --print-width=100 --tab-width=4 --single-quote --write ./forestPlot.js"
+    },
+    "devDependencies": {
+        "babel-plugin-external-helpers": "^6.22.0",
+        "babel-preset-env": "^1.7.0",
+        "babel-register": "^6.26.0",
+        "prettier": "^1.19.1",
+        "rollup": "^1.32.1",
+        "rollup-plugin-babel": "^3.0.7",
+        "rollup-plugin-commonjs": "^10.1.0",
+        "rollup-plugin-json": "^4.0.0",
+        "rollup-plugin-node-resolve": "^5.2.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/jwildfire/forest-plot.git"
+    },
+    "bugs": {
+        "url": "https://github.com/jwildfire/forest-plot/issues"
+    },
+    "org": "jwildfire",
+    "function": "forestPlot"
+}
