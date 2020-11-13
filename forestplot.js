@@ -231,81 +231,8 @@
             .domain([0, or_extent[1]]);
     }
 
-    function draw() {
+    function makeBody() {
         var chart = this;
-        var data = chart.raw;
-        var groups = chart.config.groups;
-        var pairs = chart.config.pairs;
-
-        chart.table.selectAll('*').remove();
-        chart.head = chart.table.append('thead').style('text-align', 'center');
-        chart.head1 = chart.head.append('tr');
-        chart.head1.append('th');
-        chart.head1.append('th');
-        chart.head1
-            .append('th')
-            .text('Incidence')
-            .attr('colspan', groups.length + 1);
-        chart.head1
-            .append('th')
-            .text('Comparisons')
-            .attr('colspan', pairs.length + 1);
-
-        chart.head2 = chart.head.append('tr');
-        chart.head2.append('th').text('System Organ Class');
-        chart.head2.append('th').text('Preferred Term');
-        chart.head2
-            .selectAll('th.group')
-            .data(groups)
-            .enter()
-            .append('th')
-            .text(function(d) {
-                return d;
-            });
-
-        var groupAxis = d3.svg
-            .axis()
-            .scale(chart.groupScale)
-            .ticks(6)
-            .orient('top');
-        chart.head2
-            .append('th')
-            .text('Rates')
-            .attr('class', 'rates axis')
-            .append('svg')
-            .attr('height', 20)
-            .attr('width', 120)
-            .append('svg:g')
-            .attr('class', 'axis percent')
-            .attr('transform', 'translate(0,20)')
-            .call(groupAxis);
-
-        chart.head2
-            .selectAll('th.pairs')
-            .data(pairs)
-            .enter()
-            .append('th')
-            .text(function(d) {
-                return d[0] + ' vs.' + d[1];
-            });
-        var orAxis = d3.svg
-            .axis()
-            .scale(chart.orScale)
-            .ticks(6)
-            .orient('top');
-
-        chart.head2
-            .append('th')
-            .text('Comparison')
-            .attr('class', 'diffs axis')
-            .append('svg')
-            .attr('height', '20')
-            .attr('width', 300)
-            .append('svg:g')
-            .attr('class', 'axis percent')
-            .attr('transform', 'translate(0,20)')
-            .call(orAxis);
-
         chart.body = chart.table.append('tbody');
         chart.rows = chart.body
             .selectAll('tr')
@@ -492,23 +419,83 @@
                 return chart.colorScale(d.group2);
             })
             .attr('stroke-opacity', 0.3);
+    }
 
-        var table = $('.forestplot table')
-            .DataTable({
-                dom: '<"top"if>rt<"clear">',
-                paging: false,
-                order: [[2, 'desc']],
-                columnDefs: [
-                    { width: '120px', targets: 2 + chart.config.groups.length },
-                    {
-                        width: '300px',
-                        targets: 2 + chart.config.groups.length + 1 + chart.config.pairs.length
-                    }
-                ]
-            })
-            .columns.adjust()
-            .draw();
+    function makeHeader() {
+        var chart = this;
+        var config = this.config;
+        chart.head = chart.table.append('thead').style('text-align', 'center');
+        chart.head1 = chart.head.append('tr');
+        chart.head1.append('th');
+        chart.head1.append('th');
+        chart.head1
+            .append('th')
+            .text('Incidence')
+            .attr('colspan', config.groups.length + 1);
+        chart.head1
+            .append('th')
+            .text('Comparisons')
+            .attr('colspan', config.pairs.length + 1);
 
+        chart.head2 = chart.head.append('tr');
+        chart.head2.append('th').text('System Organ Class');
+        chart.head2.append('th').text('Preferred Term');
+        chart.head2
+            .selectAll('th.group')
+            .data(config.groups)
+            .enter()
+            .append('th')
+            .text(function(d) {
+                return d;
+            });
+
+        var groupAxis = d3.svg
+            .axis()
+            .scale(chart.groupScale)
+            .ticks(6)
+            .orient('top');
+        chart.head2
+            .append('th')
+            .text('Rates')
+            .attr('class', 'rates axis')
+            .append('svg')
+            .attr('height', 20)
+            .attr('width', 120)
+            .append('svg:g')
+            .attr('class', 'axis percent')
+            .attr('transform', 'translate(0,20)')
+            .call(groupAxis);
+
+        chart.head2
+            .selectAll('th.pairs')
+            .data(config.pairs)
+            .enter()
+            .append('th')
+            .text(function(d) {
+                return d[0] + ' vs.' + d[1];
+            });
+        var orAxis = d3.svg
+            .axis()
+            .scale(chart.orScale)
+            .ticks(6)
+            .orient('top');
+
+        chart.head2
+            .append('th')
+            .text('Comparison')
+            .attr('class', 'diffs axis')
+            .append('svg')
+            .attr('height', '20')
+            .attr('width', 300)
+            .append('svg:g')
+            .attr('class', 'axis percent')
+            .attr('transform', 'translate(0,20)')
+            .call(orAxis);
+    }
+
+    function makeControls() {
+        var chart = this;
+        var config = this.config;
         // make controls
         var indidenceControl = chart.controls.append('div').attr('class', 'slider-wrap');
         var maxPercent = Math.ceil(chart.groupScale.domain()[1]);
@@ -564,7 +551,7 @@
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             var incidence_vals = data.filter(function(d, i) {
                 var first_col = 2;
-                var last_col = first_col + groups.length;
+                var last_col = first_col + config.groups.length;
                 return (i >= first_col) & (i < last_col);
             });
             var incidence_max = d3.max(incidence_vals, function(d) {
@@ -575,8 +562,8 @@
                 (incidence_max <= chart.config.incidenceFilter[1]);
 
             var comp_vals = data.filter(function(d, i) {
-                var first_comp = 2 + groups.length + 1;
-                var last_comp = first_comp + pairs.length;
+                var first_comp = 2 + config.groups.length + 1;
+                var last_comp = first_comp + config.pairs.length;
                 return (i >= first_comp) & (i < last_comp);
             });
             var comp_max = d3.max(comp_vals, function(d) {
@@ -587,6 +574,31 @@
 
             return comp_flag & incidence_flag;
         });
+    }
+
+    function draw() {
+        var chart = this;
+
+        chart.table.selectAll('*').remove();
+        makeHeader.call(this);
+        makeBody.call(this);
+        makeControls.call(this);
+
+        var table = $('.forestplot table')
+            .DataTable({
+                dom: '<"top"if>rt<"clear">',
+                paging: false,
+                order: [[2, 'desc']],
+                columnDefs: [
+                    { width: '120px', targets: 2 + chart.config.groups.length },
+                    {
+                        width: '300px',
+                        targets: 2 + chart.config.groups.length + 1 + chart.config.pairs.length
+                    }
+                ]
+            })
+            .columns.adjust()
+            .draw();
     }
 
     function forestPlot(data) {
