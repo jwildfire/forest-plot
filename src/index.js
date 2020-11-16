@@ -1,9 +1,11 @@
 import './util/polyfills';
 import './util/moveTo';
 import layout from './layout';
-import dataPrep from './dataPrep';
-import makeScales from './makeScales';
+import makeScales from './draw/makeScales';
 import { draw as drawChart } from './draw/draw';
+import processData from './processData';
+import makeFilterControls from './draw/makeFilterControls';
+import makeTestControl from './makeTestControl';
 
 export default function forestPlot(data, element = 'body', settings) {
     console.log(settings);
@@ -14,7 +16,9 @@ export default function forestPlot(data, element = 'body', settings) {
     };
 
     layout.call(chart);
-    dataPrep.call(chart);
+    processData.call(chart);
     makeScales.call(chart);
+    makeTestControl.call(chart);
     drawChart.call(chart);
+    makeFilterControls.call(chart, chart.anly[0]);
 }

@@ -1,84 +1,123 @@
-export default function makeBody() {
+export default function makeBody(testData) {
     let chart = this;
-    chart.body = chart.table.append('tbody');
-    chart.rows = chart.body
-        .selectAll('tr')
-        .data(chart.raw)
+    let config = this.config;
+    let table = testData;
+    let wrap = testData.table;
+    console.log(testData);
+    table.body = wrap.append('tbody');
+    table.rows = table.body
+        .selectAll('tr.value')
+        .data(testData.values)
         .enter()
-        .append('tr');
-    chart.rows
+        .append('tr')
+        .attr('class', 'value');
+    table.rows
         .append('td')
         .attr('class', 'soc')
-        .text(d => (d.soc.length > 25 ? d.soc.substring(0, 25) + '...' : d.soc))
-        .attr('title', d => d.soc);
-    chart.rows
+        .text(function(d) {
+            let hl = d.values.high_level_cat;
+            return hl.length > 25 ? hl.substring(0, 25) + '...' : hl;
+        })
+        .attr('title', d => d.values.high_level_cat);
+    table.rows
         .append('td')
         .attr('class', 'term')
-        .text(d => (d.term.length > 25 ? d.term.substring(0, 25) + '...' : d.term))
-        .attr('title', d => d.term);
+        .text(function(d) {
+            let ll = d.values.low_level_cat;
+            return ll.length > 25 ? ll.substring(0, 25) + '...' : ll;
+        })
+        .attr('title', d => d.values.low_level_cat);
 
     //Group Counts
-    chart.rows
+    table.rows
         .selectAll('td.group-count')
-        .data(d => d.groups)
+        .data(d => d.values.group)
         .enter()
         .append('td')
         .attr('class', 'group-count')
         .style('text-align', 'center')
-        .text(d => d.percent)
-        .attr('title', d => d.n + '/' + d.total)
+        .text(d => d.percent_text)
+        .attr('title', d => d.numerator + '/' + d.denominator)
         .style('cursor', 'help')
-        .style('color', d => chart.colorScale(d.key));
+        .style('color', d => chart.colorScale(d.group));
 
     //group plot
-    chart.groupPlot = chart.rows
+    table.groupPlot = table.rows
         .append('td')
         .attr('class', 'group-plot plot')
         .append('svg')
         .attr('height', 20)
         .attr('width', 120);
-    chart.groupPlot
+    table.groupPlot
         .selectAll('circle')
-        .data(d => d.groups)
+        .data(d => d.values.group)
         .enter()
         .append('circle')
-        .attr('cx', d => chart.groupScale(d.percent))
+        .attr('cx', d => chart.rateScale(d.percent))
         .attr('cy', 10)
         .attr('r', 5)
-        .attr('stroke', d => chart.colorScale(d.key))
-        .attr('fill', d => chart.colorScale(d.key))
+        .attr('stroke', d => chart.colorScale(d.group))
+        .attr('fill', d => chart.colorScale(d.group))
         .style('cursor', 'help')
         .append('title')
-        .text(d => d.key + ': ' + d.percent + '% (' + d.n + '/' + d.total + ')');
+        .text(
+            d => d.group + ': ' + d.percent_text + ' (' + d.numerator + '/' + d.denominator + ')'
+        );
 
     //Group Comparisons
-    chart.rows
+    table.rows
         .selectAll('td.compare')
-        .data(d => d.pairs)
+        .data(d => d.values.comparison)
         .enter()
         .append('td')
         .attr('class', 'compare')
         .style('text-align', 'center')
-        .text(d => (d.or ? d.or : '-'))
-        .attr('title', d => 'p=' + d.p)
-        .style('font-weight', d => (d.p < 0.05 ? 'bold' : null))
-        .style('color', d => (d.p < 0.05 ? 'black' : '#ccc'));
+        .text(d => d.result_text)
+        .attr(
+            'title',
+            d =>
+                'p=' +
+                d[config.p_col] +
+                ', confidence interval=[' +
+                d[config.result_lower_col] +
+                ',' +
+                d[config.result_upper_col] +
+                ']'
+        )
+        .style('font-weight', d => (d[config.p_col] < 0.05 ? 'bold' : null))
+        .style('color', d => (d[config.p_col] < 0.05 ? 'black' : '#ccc'));
 
-    var diffPlots = chart.rows
+    var diffPlots = table.rows
         .append('td')
         .attr('class', 'diffplot plot')
         .append('svg')
-        .attr('height', 20)
+        .attr('height', d => 20 * d.values.comparison.filter(f => f.result_text != '-').length)
         .attr('width', 300)
         .append('g');
 
     var diffPoints = diffPlots
         .selectAll('g')
-        .data(d => d.pairs.filter(f => f.or))
+        .data(d => d.values.comparison.filter(f => f.result_text != '-'))
         .enter()
-        .append('g');
-    diffPoints.append('title').text(d => d.label + ': ' + d.or + ' (p=' + d.p + ')');
-    //Append graphical rate differences.
+        .append('g')
+        .attr('transform', function(d, i) {
+            return `translate(0, ${i * 15})`;
+        });
+
+    diffPoints
+        .append('line')
+        .attr('class', 'ci')
+        .attr('x1', d => table.testScale(d[config.result_upper_col]))
+        .attr('x2', d => table.testScale(d.result_lower_col))
+        .attr('y1', 20 / 2)
+        .attr('y2', 20 / 2)
+        .attr('stroke-width', '1px')
+        .attr('stroke', 'black')
+        .attr('opacity', '0.4');
+
+    //diffPoints.append('title').text(d => d[config.group1_col]+" vs. " + ': ' + d.or + ' (p=' + d.p + ')');
+
+    /* Append graphical rate differences.*/
     var triangle = d3.svg
         .line()
         .x(function(d) {
@@ -96,18 +135,18 @@ export default function makeBody() {
                 r = 5;
 
             var leftpoints = [
-                { x: chart.orScale(d.or), y: h / 2 + r }, //bottom
-                { x: chart.orScale(d.or) - r, y: h / 2 }, //middle-left
-                { x: chart.orScale(d.or), y: h / 2 - r } //top
+                { x: table.testScale(d[config.result_col]), y: h / 2 + r }, //bottom
+                { x: table.testScale(d[config.result_col]) - r, y: h / 2 }, //middle-left
+                { x: table.testScale(d[config.result_col]), y: h / 2 - r } //top
             ];
             return triangle(leftpoints);
         })
         .attr('class', 'diamond')
         .attr('fill-opacity', function(d) {
-            return d.p < 0.05 ? 1 : 0.1;
+            return d[config.p_col] < 0.05 ? 1 : 0.1;
         })
-        .attr('fill', d => chart.colorScale(d.group1))
-        .attr('stroke', d => chart.colorScale(d.group1))
+        .attr('fill', d => chart.colorScale(d[config.group1_col]))
+        .attr('stroke', d => chart.colorScale(d[config.group2_col]))
         .attr('stroke-opacity', 0.3);
 
     diffPoints
@@ -117,17 +156,17 @@ export default function makeBody() {
             let r = 5;
 
             var rightpoints = [
-                { x: chart.orScale(d.or), y: h / 2 + r }, //bottom
-                { x: chart.orScale(d.or) + r, y: h / 2 }, //middle-right
-                { x: chart.orScale(d.or), y: h / 2 - r } //top
+                { x: table.testScale(d[config.result_col]), y: h / 2 + r }, //bottom
+                { x: table.testScale(d[config.result_col]) + r, y: h / 2 }, //middle-right
+                { x: table.testScale(d[config.result_col]), y: h / 2 - r } //top
             ];
             return triangle(rightpoints);
         })
         .attr('class', 'diamond')
         .attr('fill-opacity', function(d) {
-            return d.p < 0.05 ? 1 : 0.1;
+            return d[config.p_col] < 0.05 ? 1 : 0.1;
         })
-        .attr('fill', d => chart.colorScale(d.group2))
-        .attr('stroke', d => chart.colorScale(d.group2))
+        .attr('fill', d => chart.colorScale(d[config.group2_col]))
+        .attr('stroke', d => chart.colorScale(d[config.group2_col]))
         .attr('stroke-opacity', 0.3);
 }

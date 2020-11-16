@@ -5,5 +5,4 @@ export default function layout() {
         .select(chart.element)
         .append('div')
         .attr('class', 'controls');
-    chart.table = chart.wrap.append('table');
 }
