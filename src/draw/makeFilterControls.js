@@ -9,7 +9,7 @@ export default function makeFilterControls(testData) {
     indidenceControl
         .append('label')
         .attr('id', 'incidence-label')
-        .text('Incidence: ');
+        .text('Max Group Percentage: ');
     indidenceControl
         .append('span')
         .attr('id', 'incidence-vals')
@@ -34,7 +34,7 @@ export default function makeFilterControls(testData) {
     compControl
         .append('label')
         .attr('id', 'comp-label')
-        .text('Comparisons: ');
+        .text('Max Comparison: ');
     compControl
         .append('span')
         .attr('id', 'comp-vals')

@@ -10,7 +10,7 @@ export default function makeHeader(testData) {
     table.head1.append('th');
     table.head1
         .append('th')
-        .text('Incidence')
+        .text('Groups')
         .attr('colspan', config.groups.length + 1);
     table.head1
         .append('th')
@@ -31,10 +31,12 @@ export default function makeHeader(testData) {
         .axis()
         .scale(chart.rateScale)
         .ticks(3)
+        //.format('0.1%')
         .orient('top');
+
     table.head2
         .append('th')
-        .text('Rates')
+        .text('Percentage')
         .attr('class', 'rates axis')
         .append('svg')
         .attr('height', 20)

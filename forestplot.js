@@ -467,7 +467,7 @@
         table.head1.append('th');
         table.head1
             .append('th')
-            .text('Incidence')
+            .text('Groups')
             .attr('colspan', config.groups.length + 1);
         table.head1
             .append('th')
@@ -490,10 +490,12 @@
             .axis()
             .scale(chart.rateScale)
             .ticks(3)
+            //.format('0.1%')
             .orient('top');
+
         table.head2
             .append('th')
-            .text('Rates')
+            .text('Percentage')
             .attr('class', 'rates axis')
             .append('svg')
             .attr('height', 20)
@@ -752,7 +754,7 @@
         indidenceControl
             .append('label')
             .attr('id', 'incidence-label')
-            .text('Incidence: ');
+            .text('Max Group Percentage: ');
         indidenceControl
             .append('span')
             .attr('id', 'incidence-vals')
@@ -777,7 +779,7 @@
         compControl
             .append('label')
             .attr('id', 'comp-label')
-            .text('Comparisons: ');
+            .text('Max Comparison: ');
         compControl
             .append('span')
             .attr('id', 'comp-vals')
