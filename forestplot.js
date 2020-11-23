@@ -1,290 +1,874 @@
-function forestplot(data, element, groups, pairs){
-    let chart = {}
-    chart.wrap = d3.select(element).attr("class", "forestplot")
-    chart.config= {};
-    chart.controls = d3.select(element).append("div").attr("class","controls")
-    chart.table = chart.wrap.append("table")
-    chart.raw = data;
-    chart.groups = groups;
-    chart.pairs = pairs;
+(function(global, factory) {
+    typeof exports === 'object' && typeof module !== 'undefined'
+        ? (module.exports = factory(require('d3')))
+        : typeof define === 'function' && define.amd
+        ? define(['d3'], factory)
+        : ((global = global || self), (global.forestPlot = factory(global.d3)));
+})(this, function(d3$1) {
+    'use strict';
 
-    //data prep
-    chart.raw.forEach(function(d){
-        d.groups = groups.map(function(group){
-            return { 
-                key:group,
-                percent:d[group+"_percent"],
-                n: d[group + "_n"],
-                total: d[group+"_total"]
+    if (typeof Object.assign != 'function') {
+        Object.defineProperty(Object, 'assign', {
+            value: function assign(target, varArgs) {
+                if (target == null) {
+                    // TypeError if undefined or null
+                    throw new TypeError('Cannot convert undefined or null to object');
+                }
+
+                var to = Object(target);
+
+                for (var index = 1; index < arguments.length; index++) {
+                    var nextSource = arguments[index];
+
+                    if (nextSource != null) {
+                        // Skip over if undefined or null
+                        for (var nextKey in nextSource) {
+                            // Avoid bugs when hasOwnProperty is shadowed
+                            if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+                                to[nextKey] = nextSource[nextKey];
+                            }
+                        }
+                    }
+                }
+
+                return to;
+            },
+            writable: true,
+            configurable: true
+        });
+    }
+
+    if (!Array.prototype.find) {
+        Object.defineProperty(Array.prototype, 'find', {
+            value: function value(predicate) {
+                // 1. Let O be ? ToObject(this value).
+                if (this == null) {
+                    throw new TypeError('"this" is null or not defined');
+                }
+
+                var o = Object(this);
+
+                // 2. Let len be ? ToLength(? Get(O, 'length')).
+                var len = o.length >>> 0;
+
+                // 3. If IsCallable(predicate) is false, throw a TypeError exception.
+                if (typeof predicate !== 'function') {
+                    throw new TypeError('predicate must be a function');
+                }
+
+                // 4. If thisArg was supplied, let T be thisArg; else let T be undefined.
+                var thisArg = arguments[1];
+
+                // 5. Let k be 0.
+                var k = 0;
+
+                // 6. Repeat, while k < len
+                while (k < len) {
+                    // a. Let Pk be ! ToString(k).
+                    // b. Let kValue be ? Get(O, Pk).
+                    // c. Let testResult be ToBoolean(? Call(predicate, T, � kValue, k, O �)).
+                    // d. If testResult is true, return kValue.
+                    var kValue = o[k];
+                    if (predicate.call(thisArg, kValue, k, o)) {
+                        return kValue;
+                    }
+                    // e. Increase k by 1.
+                    k++;
+                }
+
+                // 7. Return undefined.
+                return undefined;
             }
-        })
-        d.pairs = pairs.map(function (pair) { 
-            let pair_id = pair[0] + "_" + pair[1] 
-            console.log(pair_id)
-            return { 
-                key: pair_id, 
-                group1:pair[0],
-                group2:pair[1],
-                label:pair[0]+" vs. "+pair[1],
-                or: d[pair_id + "_or"],
-                p: d[pair_id+ "_pval"],
-                // add the high and low numbers per pair
-                ci_high: d[pair_id + "_ci_high"],
-                ci_low: d[pair_id+ "_ci_low"],
+        });
+    }
+
+    if (!Array.prototype.findIndex) {
+        Object.defineProperty(Array.prototype, 'findIndex', {
+            value: function value(predicate) {
+                // 1. Let O be ? ToObject(this value).
+                if (this == null) {
+                    throw new TypeError('"this" is null or not defined');
+                }
+
+                var o = Object(this);
+
+                // 2. Let len be ? ToLength(? Get(O, "length")).
+                var len = o.length >>> 0;
+
+                // 3. If IsCallable(predicate) is false, throw a TypeError exception.
+                if (typeof predicate !== 'function') {
+                    throw new TypeError('predicate must be a function');
+                }
+
+                // 4. If thisArg was supplied, let T be thisArg; else let T be undefined.
+                var thisArg = arguments[1];
+
+                // 5. Let k be 0.
+                var k = 0;
+
+                // 6. Repeat, while k < len
+                while (k < len) {
+                    // a. Let Pk be ! ToString(k).
+                    // b. Let kValue be ? Get(O, Pk).
+                    // c. Let testResult be ToBoolean(? Call(predicate, T, � kValue, k, O �)).
+                    // d. If testResult is true, return k.
+                    var kValue = o[k];
+                    if (predicate.call(thisArg, kValue, k, o)) {
+                        return k;
+                    }
+                    // e. Increase k by 1.
+                    k++;
+                }
+
+                // 7. Return -1.
+                return -1;
             }
-        })
-    })
+        });
+    }
 
-    console.log(chart.raw)
+    Math.log10 = Math.log10 =
+        Math.log10 ||
+        function(x) {
+            return Math.log(x) * Math.LOG10E;
+        };
 
-    //define scales
-    let colorScale = d3.scale.ordinal()
-        .range(['#999','#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf'])
-        .domain(groups)
+    // https://github.com/wbkd/d3-extended
+    d3$1.selection.prototype.moveToFront = function() {
+        return this.each(function() {
+            this.parentNode.appendChild(this);
+        });
+    };
 
-    let all_percents = d3.merge(data.map(m => m.groups.map(n => n.percent)))
-    let percent_extent = d3.extent(all_percents)
-    let groupScale = d3.scale.linear().range([10, 110]).domain(percent_extent)
+    d3$1.selection.prototype.moveToBack = function() {
+        return this.each(function() {
+            var firstChild = this.parentNode.firstChild;
+            if (firstChild) {
+                this.parentNode.insertBefore(this, firstChild);
+            }
+        });
+    };
 
-    let all_ors = d3.merge(data.map(m => m.pairs.map(n => n.or)))
-    let or_extent = d3.extent(all_ors)
-    let orScale = d3.scale.linear().range([10, 290]).domain([0,or_extent[1]])
+    function layout() {
+        var chart = this;
+        chart.wrap = d3.select(chart.element).attr('class', 'forestplot');
+        chart.controls = d3
+            .select(chart.element)
+            .append('div')
+            .attr('class', 'controls');
+    }
 
+    function makeScales() {
+        var chart = this;
+        var config = this.config;
 
-    //header   
-    chart.draw = function(data,groups,pairs){
-        chart.table.selectAll("*").remove()
-        chart.head = chart.table.append("thead").style("text-align", "center")
-        chart.head1=chart.head.append("tr")
-        chart.head1.append("th")
-        chart.head1.append("th")
-        chart.head1.append("th").text("Incidence").attr("colspan",groups.length+1)
-        chart.head1.append("th").text("Comparisons").attr("colspan", pairs.length+1)
+        chart.colorScale = d3.scale
+            .ordinal()
+            .range([
+                '#999',
+                '#e41a1c',
+                '#377eb8',
+                '#4daf4a',
+                '#984ea3',
+                '#ff7f00',
+                '#ffff33',
+                '#a65628',
+                '#f781bf'
+            ])
+            .domain(
+                chart.config.groups.map(function(m) {
+                    return m.group;
+                })
+            );
 
-        chart.head2 = chart.head.append("tr")
-        chart.head2.append("th").text("System Organ Class")
-        chart.head2.append("th").text("Preferred Term")
-        chart.head2.selectAll("th.group").data(groups).enter().append("th").text(d=>d)
+        //Rate Scale - shared across tests
+        var all_percents = chart.raw.map(function(m) {
+            var num1 = +m.n1;
+            var num2 = +m.n2;
+            var denom1 = +m.N1;
+            var denom2 = +m.N2;
+            var percent1 = num1 / denom1;
+            var percent2 = num2 / denom2;
+            return [percent1, percent2];
+        });
+        var percent_extent = d3.extent(d3.merge(all_percents));
 
-        var groupAxis = d3.svg.axis().scale(groupScale).ticks(6).orient("top");
-        chart.head2.append("th").text("Rates").attr("class", "rates axis")
-            .append('svg')
-            .attr('height', 20)
-            .attr('width', 120)
-            .append('svg:g')
-            .attr('class', 'axis percent')
-            .attr("transform", "translate(0,20)")
-            .call(groupAxis)
+        chart.rateScale = d3.scale
+            .linear()
+            .range([10, 110])
+            .domain(percent_extent);
 
-        chart.head2.selectAll("th.pairs").data(pairs).enter().append("th").text(d => d[0]+" vs."+d[1])
-        var orAxis = d3.svg.axis().scale(orScale).ticks(6).orient("top");
+        //Test scale - defined for each test
+        chart.anly.forEach(function(testData) {
+            console.log(testData);
+            var all_comparisons = d3.merge(
+                testData.values.map(function(m) {
+                    return m.values.comparison;
+                })
+            );
+            console.log(all_comparisons);
+            var all_upper = all_comparisons.map(function(m) {
+                return +m[config.result_upper_col];
+            });
+            var all_lower = all_comparisons.map(function(m) {
+                return +m[config.result_lower_col];
+            });
+            console.log(all_upper);
+            var testExtent = [d3.min(all_lower), d3.max(all_upper)];
+            //let testExtent = [0, d3.max(all_upper)];
+            console.log(testExtent);
+            testData.testScale = d3.scale
+                .linear()
+                .range([10, 290])
+                .domain(testExtent);
+        });
+    }
 
-        chart.head2.append("th").text("Comparison").attr("class", "diffs axis")
-            .append('svg')
-            .attr('height', '20')
-            .attr('width', 300)
-            .append('svg:g')
-            .attr('class', 'axis percent')
-            .attr("transform", "translate(0,20)")
-            .call(orAxis);
-
-        chart.body = chart.table.append("tbody")
-        chart.rows = chart.body.selectAll("tr").data(data).enter().append("tr")
-        chart.rows.append("td").attr("class","soc")
-        .text(d => d.soc.length > 25 ? d.soc.substring(0,25)+"...": d.soc) 
-        .attr("title",d=>d.soc)
-        chart.rows.append("td").attr("class", "term")
-        .text(d => d.term.length > 25 ? d.term.substring(0,25) + "..." : d.term)
-        .attr("title", d => d.term)
-
+    function makeBody(testData) {
+        var chart = this;
+        var config = this.config;
+        var table = testData;
+        var wrap = testData.table;
+        console.log(testData);
+        table.body = wrap.append('tbody');
+        table.rows = table.body
+            .selectAll('tr.value')
+            .data(testData.values)
+            .enter()
+            .append('tr')
+            .attr('class', 'value');
+        table.rows
+            .append('td')
+            .attr('class', 'soc')
+            .text(function(d) {
+                var hl = d.values.high_level_cat;
+                return hl.length > 25 ? hl.substring(0, 25) + '...' : hl;
+            })
+            .attr('title', function(d) {
+                return d.values.high_level_cat;
+            });
+        table.rows
+            .append('td')
+            .attr('class', 'term')
+            .text(function(d) {
+                var ll = d.values.low_level_cat;
+                return ll.length > 25 ? ll.substring(0, 25) + '...' : ll;
+            })
+            .attr('title', function(d) {
+                return d.values.low_level_cat;
+            });
 
         //Group Counts
-        chart.rows.selectAll("td.group-count")
-        .data(d=>d.groups)
-        .enter()
-        .append("td")
-        .attr("class", "group-count")
-        .style("text-align", "center")
-        .text(d=>d.percent)
-        .attr("title", d => d.n + "/" + d.total)
-        .style("cursor","help")
-        .style("color",d=>colorScale(d.key))
-        
+        table.rows
+            .selectAll('td.group-count')
+            .data(function(d) {
+                return d.values.group;
+            })
+            .enter()
+            .append('td')
+            .attr('class', 'group-count')
+            .style('text-align', 'center')
+            .text(function(d) {
+                return d.percent_text;
+            })
+            .attr('title', function(d) {
+                return d.numerator + '/' + d.denominator;
+            })
+            .style('cursor', 'help')
+            .style('color', function(d) {
+                return chart.colorScale(d.group);
+            });
 
         //group plot
-        chart.groupPlot = chart.rows.append("td").attr("class","group-plot plot").append("svg").attr("height",20).attr("width",120)
-        chart.groupPlot.selectAll("circle")
-        .data(d=>d.groups)
-        .enter()
-        .append("circle")
-        .attr("cx",d=>groupScale(d.percent))
-        .attr("cy",10)
-        .attr("r",5)
-        .attr("stroke",d=>colorScale(d.key))
-        .attr("fill", d=>colorScale(d.key))
-        .style("cursor","help")
-        .append("title").text(d=>d.key+": "+d.percent+"% ("+d.n+"/"+d.total+")")
-
+        table.groupPlot = table.rows
+            .append('td')
+            .attr('class', 'group-plot plot')
+            .append('svg')
+            .attr('height', 20)
+            .attr('width', 120);
+        table.groupPlot
+            .selectAll('circle')
+            .data(function(d) {
+                return d.values.group;
+            })
+            .enter()
+            .append('circle')
+            .attr('cx', function(d) {
+                return chart.rateScale(d.percent);
+            })
+            .attr('cy', 10)
+            .attr('r', 5)
+            .attr('stroke', function(d) {
+                return chart.colorScale(d.group);
+            })
+            .attr('fill', function(d) {
+                return chart.colorScale(d.group);
+            })
+            .style('cursor', 'help')
+            .append('title')
+            .text(function(d) {
+                return (
+                    d.group + ': ' + d.percent_text + ' (' + d.numerator + '/' + d.denominator + ')'
+                );
+            });
 
         //Group Comparisons
-        chart.rows
-        .selectAll("td.compare")
-        .data(d=>d.pairs)
-        .enter()
-        .append("td")
-        .attr("class","compare")
-        .style("text-align", "center")
-        .text(d=>d.or ?d.or : "-")
-        .attr("title",d=>"p="+d.p)
-        .style("font-weight",d=>d.p<0.05 ? "bold" : null) 
-        .style("color", d => d.p < 0.05 ? "black" : "#ccc") 
-
-        var diffPlots = chart.rows.append("td")
-            .attr('class','diffplot plot')
-            .append('svg')
-            .attr('height', 20 * chart.pairs.length)
-            .attr('width', 300)
-            .append('g')
-
-        diffPlots.selectAll("myline")
-            .data(d=>d.pairs)
+        table.rows
+            .selectAll('td.compare')
+            .data(function(d) {
+                return d.values.comparison;
+            })
             .enter()
-            .append("line")
-            .attr("x1", d => orScale(d.ci_high))
-            .attr("x2", d => orScale(d.ci_low))
-            // because this is what we use for the diamonds?
-            .attr("y1", 20 / 2)
-            .attr("y2", 20 / 2)
-            .attr("stroke-width", "1px")
-            .attr("stroke", "black")
-            .attr("opacity", "0.4")
-            .attr("transform", function (d, i) { return `translate(0, ${i * 15})` })
+            .append('td')
+            .attr('class', 'compare')
+            .style('text-align', 'center')
+            .text(function(d) {
+                return d.result_text;
+            })
+            .attr('title', function(d) {
+                return (
+                    'p=' +
+                    d[config.p_col] +
+                    ', confidence interval=[' +
+                    d[config.result_lower_col] +
+                    ',' +
+                    d[config.result_upper_col] +
+                    ']'
+                );
+            })
+            .style('font-weight', function(d) {
+                return d[config.p_col] < 0.05 ? 'bold' : null;
+            })
+            .style('color', function(d) {
+                return d[config.p_col] < 0.05 ? 'black' : '#ccc';
+            });
 
-        var diffPoints = diffPlots.selectAll('g').data(d=>d.pairs.filter(f=>f.or)).enter().append('g')
-        .attr("transform", function (d, i) { return `translate(0, ${i * 15})` })
+        var diffPlots = table.rows
+            .append('td')
+            .attr('class', 'diffplot plot')
+            .append('svg')
+            .attr('height', function(d) {
+                return (
+                    20 *
+                    d.values.comparison.filter(function(f) {
+                        return f.result_text != '-';
+                    }).length
+                );
+            })
+            .attr('width', 300)
+            .append('g');
 
-        diffPoints.append('title').text(d=>d.label+": "+d.or+" (p="+d.p+")");
-        //Append graphical rate differences.
+        var diffPoints = diffPlots
+            .selectAll('g')
+            .data(function(d) {
+                return d.values.comparison.filter(function(f) {
+                    return f.result_text != '-';
+                });
+            })
+            .enter()
+            .append('g')
+            .attr('transform', function(d, i) {
+                return 'translate(0, ' + i * 15 + ')';
+            });
+
+        diffPoints
+            .append('line')
+            .attr('class', 'ci')
+            .attr('x1', function(d) {
+                return table.testScale(d[config.result_upper_col]);
+            })
+            .attr('x2', function(d) {
+                return table.testScale(d.result_lower_col);
+            })
+            .attr('y1', 20 / 2)
+            .attr('y2', 20 / 2)
+            .attr('stroke-width', '1px')
+            .attr('stroke', 'black')
+            .attr('opacity', '0.4');
+
+        //diffPoints.append('title').text(d => d[config.group1_col]+" vs. " + ': ' + d.or + ' (p=' + d.p + ')');
+
+        /* Append graphical rate differences.*/
         var triangle = d3.svg
             .line()
-            .x(function (d) {
+            .x(function(d) {
                 return d.x;
             })
-            .y(function (d) {
+            .y(function(d) {
                 return d.y;
             })
             .interpolate('linear-closed')
 
         diffPoints
             .append('svg:path')
-            .attr('d', function (d) {
-                var h =20,
+            .attr('d', function(d) {
+                var h = 20,
                     r = 5;
 
                 var leftpoints = [
-                    { x: orScale(d.or), y: h / 2 + r }, //bottom
-                    { x: orScale(d.or) - r, y: h / 2 }, //middle-left
-                    { x: orScale(d.or), y: h / 2 - r } //top
+                    { x: table.testScale(d[config.result_col]), y: h / 2 + r }, //bottom
+                    { x: table.testScale(d[config.result_col]) - r, y: h / 2 }, //middle-left
+                    {
+                        x: table.testScale(d[config.result_col]),
+                        y: h / 2 - r //top
+                    }
                 ];
                 return triangle(leftpoints);
             })
             .attr('class', 'diamond')
-            .attr('fill-opacity', function (d) {
-                return d.p <0.05 ? 1 : 0.1;
+            .attr('fill-opacity', function(d) {
+                return d[config.p_col] < 0.05 ? 1 : 0.1;
             })
-            .attr('fill', d=>colorScale(d.group1))
-            .attr('stroke', d => colorScale(d.group1))
+            .attr('fill', function(d) {
+                return chart.colorScale(d[config.group1_col]);
+            })
+            .attr('stroke', function(d) {
+                return chart.colorScale(d[config.group2_col]);
+            })
             .attr('stroke-opacity', 0.3);
 
         diffPoints
             .append('svg:path')
-            .attr('d', function (d) {
+            .attr('d', function(d) {
                 var h = 20;
-                    r = 5;
+                var r = 5;
 
                 var rightpoints = [
-                    { x: orScale(d.or), y: h / 2 + r }, //bottom
-                    { x: orScale(d.or) + r, y: h / 2 }, //middle-right
-                    { x: orScale(d.or), y: h / 2 - r } //top
+                    { x: table.testScale(d[config.result_col]), y: h / 2 + r }, //bottom
+                    { x: table.testScale(d[config.result_col]) + r, y: h / 2 }, //middle-right
+                    {
+                        x: table.testScale(d[config.result_col]),
+                        y: h / 2 - r //top
+                    }
                 ];
                 return triangle(rightpoints);
             })
             .attr('class', 'diamond')
-            .attr('fill-opacity', function (d) {
-                return d.p < 0.05 ? 1 : 0.1;
+            .attr('fill-opacity', function(d) {
+                return d[config.p_col] < 0.05 ? 1 : 0.1;
             })
-            .attr('fill', d => colorScale(d.group2))
-            .attr('stroke', d => colorScale(d.group2))
+            .attr('fill', function(d) {
+                return chart.colorScale(d[config.group2_col]);
+            })
+            .attr('stroke', function(d) {
+                return chart.colorScale(d[config.group2_col]);
+            })
             .attr('stroke-opacity', 0.3);
+    }
 
-        let table = $('.forestplot table').DataTable({ 
-            "dom": '<"top"if>rt<"clear">',
-            "paging": false, 
-            "order": [[2, "desc"]],
-            "columnDefs": [
-                { "width": "120px", "targets":  2 + chart.groups.length},
-                { "width": "300px", "targets":  2 + chart.groups.length + 1 + chart.pairs.length}
-            ]
-        }).columns.adjust().draw();
+    function makeHeader(testData) {
+        var chart = this;
+        var config = this.config;
+        var table = testData;
+        var wrap = testData.table;
+
+        table.head = wrap.append('thead').style('text-align', 'center');
+        table.head1 = table.head.append('tr');
+        table.head1.append('th');
+        table.head1.append('th');
+        table.head1
+            .append('th')
+            .text('Groups')
+            .attr('colspan', config.groups.length + 1);
+        table.head1
+            .append('th')
+            .text(testData.key)
+            .attr('colspan', config.pairs.length + 1);
+
+        table.head2 = table.head.append('tr');
+        table.head2.append('th').text('System Organ Class');
+        table.head2.append('th').text('Preferred Term');
+        table.head2
+            .selectAll('th.group')
+            .data(config.groups)
+            .enter()
+            .append('th')
+            .text(function(d) {
+                return d.group;
+            });
+
+        var rateAxis = d3.svg
+            .axis()
+            .scale(chart.rateScale)
+            .ticks(3)
+            //.format('0.1%')
+            .orient('top');
+
+        table.head2
+            .append('th')
+            .text('Percentage')
+            .attr('class', 'rates axis')
+            .append('svg')
+            .attr('height', 20)
+            .attr('width', 120)
+            .append('svg:g')
+            .attr('class', 'axis percent')
+            .attr('transform', 'translate(0,20)')
+            .call(rateAxis);
+
+        table.head2
+            .selectAll('th.pairs')
+            .data(config.pairs)
+            .enter()
+            .append('th')
+            .text(function(d) {
+                return d;
+            });
+        var testAxis = d3.svg
+            .axis()
+            .scale(testData.testScale)
+            .ticks(6)
+            .orient('top');
+
+        table.head2
+            .append('th')
+            .text('Comparison')
+            .attr('class', 'diffs axis')
+            .append('svg')
+            .attr('height', '20')
+            .attr('width', 300)
+            .append('svg:g')
+            .attr('class', 'axis percent')
+            .attr('transform', 'translate(0,20)')
+            .call(testAxis);
+    }
+
+    function draw() {
+        var chart = this;
+
+        chart.anly.forEach(function(testData, i) {
+            testData.wrap = chart.wrap
+                .append('div')
+                .attr('class', 'tableWrap')
+                .classed('hidden', i > 0)
+                .datum(testData.key);
+            testData.wrap.append('h2').text(testData.key);
+            testData.table = testData.wrap
+                .append('table')
+                .attr('class', 'table ae-table table' + i);
+            makeHeader.call(chart, testData);
+            makeBody.call(chart, testData);
+            $('.forestplot .tableWrap .table' + i)
+                .DataTable({
+                    dom: '<"top"if>rt<"clear">',
+                    paging: false,
+                    order: [[2, 'desc']],
+                    columnDefs: [
+                        { width: '120px', targets: 2 + chart.config.groups.length },
+                        {
+                            width: '300px',
+                            targets: 2 + chart.config.groups.length + 1 + chart.config.pairs.length
+                        }
+                    ]
+                })
+                .columns.adjust()
+                .draw();
+        });
+    }
+
+    function processData() {
+        var chart = this;
+        var config = this.config;
+
+        //get list of all groups
+        var allgroups = d3.merge(
+            chart.raw.map(function(m) {
+                return [
+                    { group: m[config.group1_col], count: m[config.denominator1_col] },
+                    { group: m[config.group2_col], count: m[config.denominator2_col] }
+                ];
+            })
+        );
+
+        var group_names = d3
+            .set(
+                allgroups.map(function(m) {
+                    return m.group;
+                })
+            )
+            .values()
+            .sort();
+
+        config.groups = group_names.map(function(name) {
+            var count = allgroups.filter(function(f) {
+                return f.group == name;
+            })[0].count;
+            return { group: name, count: +count };
+        });
+
+        //get list of all comparisons
+        var allcomps = chart.raw.map(function(m) {
+            var comp = m[config.group1_col] + ':' + m[config.group2_col];
+            return comp;
+        });
+
+        config.pairs = d3
+            .set(allcomps)
+            .values()
+            .sort();
+
+        //make nested data for analysis
+        this.anly = d3
+            .nest()
+            .key(function(f) {
+                return f[config.test_col];
+            }) // group by test type
+            .key(function(f) {
+                return f[config.high_level_col] + ':' + f[config.low_level_col];
+            }) // and AE type
+            .rollup(function(pt) {
+                var groups = d3
+                    .nest()
+                    .key(function(f) {
+                        return f[config.group1_col];
+                    })
+                    .rollup(function(d) {
+                        return {
+                            group: d[0][config.group1_col],
+                            numerator: +d[0][config.numerator1_col],
+                            denominator: +d[0][config.denominator1_col]
+                        };
+                    })
+                    .entries(pt)
+                    .map(function(f) {
+                        return f.values;
+                    });
+
+                var comparison_groups = d3
+                    .nest()
+                    .key(function(f) {
+                        return f[config.group2_col];
+                    })
+                    .rollup(function(d) {
+                        return {
+                            group: d[0][config.group2_col],
+                            numerator: +d[0][config.numerator2_col],
+                            denominator: +d[0][config.denominator2_col]
+                        };
+                    })
+                    .entries(pt)
+                    .map(function(f) {
+                        return f.values;
+                    });
+
+                //add unused comparison groups to group list
+                var group_names = groups.map(function(m) {
+                    return m.group;
+                });
+                comparison_groups.forEach(function(comp_group) {
+                    if (group_names.indexOf(comp_group.group) == -1) {
+                        groups.push(comp_group);
+                    }
+                });
+
+                // Add in missing groups using config
+                var all_group_names = groups.map(function(m) {
+                    return m.group;
+                });
+                config.groups.forEach(function(config_group) {
+                    if (all_group_names.indexOf(config_group.group) == -1) {
+                        console.log(config_group.group + ' group is missing');
+                        groups.push({
+                            group: config_group.group,
+                            numerator: 0,
+                            denominator: config_group.count
+                        });
+                    }
+                });
+
+                // calculate percents
+                groups.forEach(function(g) {
+                    g.percent = g.numerator / g.denominator;
+                    g.percent_text = d3.format('0.1%')(g.percent);
+                });
+
+                groups.sort(function(a, b) {
+                    if (a.group < b.group) {
+                        return -1;
+                    }
+                    if (a.group > b.group) {
+                        return 1;
+                    }
+                    return 0;
+                });
+
+                // Get comparisons
+                var comparisons = d3
+                    .nest()
+                    .key(function(f) {
+                        return f[config.group1_col] + ':' + f[config.group2_col];
+                    })
+                    .entries(pt)
+                    .map(function(f) {
+                        return f.values[0];
+                    });
+
+                comparisons.forEach(function(d) {
+                    d.comp = d[config.group1_col] + ':' + d[config.group2_col];
+                    d.result_text = d3.format('0.2f')(d[config.result_col]);
+                });
+
+                var comp_names = comparisons.map(function(comp) {
+                    return comp[config.group1_col] + ':' + comp[config.group2_col];
+                });
+
+                config.pairs.forEach(function(config_pair) {
+                    if (comp_names.indexOf(config_pair) == -1) {
+                        console.log('pair is missing');
+                        comparisons.push({
+                            comp: config_pair,
+                            result_text: '-'
+                        });
+                    }
+                });
+
+                comparisons.sort(function(a, b) {
+                    if (a.comp < b.comp) {
+                        return -1;
+                    }
+                    if (a.comp > b.comp) {
+                        return 1;
+                    }
+                    return 0;
+                });
+
+                var shell = {
+                    high_level_cat: pt[0][config.high_level_col],
+                    low_level_cat: pt[0][config.low_level_col],
+                    group: groups,
+                    comparison: comparisons
+                };
+                return shell;
+            })
+            .entries(this.raw);
+        console.log(this.anly);
+    }
+
+    function makeFilterControls(testData) {
+        var chart = this;
+        var config = this.config;
+        var controls = chart.controls;
 
         // make controls
-        let indidenceControl = chart.controls.append("div").attr("class","slider-wrap")
-        indidenceControl.append("label").attr("id","incidence-label").text("Incidence: ")
-        indidenceControl.append("span").attr("id","incidence-vals").attr("class","label").text("0 - "+Math.ceil(percent_extent[1]))
-        indidenceControl.append("div").attr("id","incidence-slider")
-        chart.config.incidenceFilter=[0,Math.ceil(percent_extent[1])]
-        $("#incidence-slider").slider({
+        var indidenceControl = controls.append('div').attr('class', 'slider-wrap');
+        var maxPercent = Math.ceil(chart.rateScale.domain()[1]);
+        indidenceControl
+            .append('label')
+            .attr('id', 'incidence-label')
+            .text('Max Group Percentage: ');
+        indidenceControl
+            .append('span')
+            .attr('id', 'incidence-vals')
+            .attr('class', 'label')
+            .text('0 - ' + maxPercent);
+        indidenceControl.append('div').attr('id', 'incidence-slider');
+        chart.config.incidenceFilter = [0, maxPercent];
+        $('#incidence-slider').slider({
             range: true,
             min: 0,
-            max: Math.ceil(percent_extent[1]),
-            values: [0,Math.ceil(percent_extent[1])],
-            slide: function(event, ui) {
-                d3.select("#incidence-vals").text(ui.values[0] + " - " + ui.values[1]);
-                chart.config.incidenceFilter=ui.values
-                table.draw();
+            max: maxPercent,
+            values: [0, maxPercent],
+            slide: function slide(event, ui) {
+                d3.select('#incidence-vals').text(ui.values[0] + ' - ' + ui.values[1]);
+                chart.config.incidenceFilter = ui.values;
+                //    table.draw();
             }
         });
 
-        let compControl = chart.controls.append("div").attr("class","slider-wrap")
-        compControl.append("label").attr("id","comp-label").text("Comparisons: ")
-        compControl.append("span").attr("id","comp-vals").attr("class","label").text("0 - "+Math.ceil(or_extent[1]))
-        compControl.append("div").attr("id","comp-slider")
-        chart.config.compFilter=[0,Math.ceil(or_extent[1])]
-        $("#comp-slider").slider({
+        var compControl = controls.append('div').attr('class', 'slider-wrap');
+        var maxOR = Math.ceil(testData.testScale.domain()[1]);
+        compControl
+            .append('label')
+            .attr('id', 'comp-label')
+            .text('Max Comparison: ');
+        compControl
+            .append('span')
+            .attr('id', 'comp-vals')
+            .attr('class', 'label')
+            .text('0 - ' + maxOR);
+        compControl.append('div').attr('id', 'comp-slider');
+        chart.config.compFilter = [0, maxOR];
+        $('#comp-slider').slider({
             range: true,
             min: 0,
-            max: Math.ceil(or_extent[1]),
-            values: [0,Math.ceil(or_extent[1])],
-            slide: function(event, ui) {
-                d3.select("#comp-vals").text(ui.values[0] + " - " + ui.values[1]);
-                chart.config.compFilter=ui.values
-                table.draw();
+            max: maxOR,
+            values: [0, maxOR],
+            slide: function slide(event, ui) {
+                d3.select('#comp-vals').text(ui.values[0] + ' - ' + ui.values[1]);
+                chart.config.compFilter = ui.values;
+                //    table.draw();
             }
         });
 
         // Search on rates
-        $.fn.dataTable.ext.search.push(
-            function( settings, data, dataIndex ) {
-                let incidence_vals = data.filter(function(d,i){
-                    let first_col = 2
-                    let last_col = first_col + groups.length
-                    return i>=first_col & i <last_col
-                })
-                let incidence_max = d3.max(incidence_vals, d=>+d);
-                let incidence_flag = incidence_max >= chart.config.incidenceFilter[0] & incidence_max<=chart.config.incidenceFilter[1]
+        // $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        //     let incidence_vals = data.filter(function(d, i) {
+        //         let first_col = 2;
+        //         let last_col = first_col + config.groups.length;
+        //         return (i >= first_col) & (i < last_col);
+        //     });
+        //     let incidence_max = d3.max(incidence_vals, d => +d);
+        //     let incidence_flag =
+        //         (incidence_max >= chart.config.incidenceFilter[0]) &
+        //         (incidence_max <= chart.config.incidenceFilter[1]);
 
-                let comp_vals = data.filter(function(d,i){
-                    let first_comp = 2 + groups.length + 1
-                    let last_comp = first_comp + pairs.length
-                    return i>=first_comp & i < last_comp
-                })
-                let comp_max = d3.max(comp_vals, d=>d=="-"?0:+d);
-                let comp_flag = comp_max >= chart.config.compFilter[0] & comp_max<=chart.config.compFilter[1]
+        //     let comp_vals = data.filter(function(d, i) {
+        //         let first_comp = 2 + config.groups.length + 1;
+        //         let last_comp = first_comp + config.pairs.length;
+        //         return (i >= first_comp) & (i < last_comp);
+        //     });
+        //     let comp_max = d3.max(comp_vals, d => (d == '-' ? 0 : +d));
+        //     let comp_flag =
+        //         (comp_max >= chart.config.compFilter[0]) & (comp_max <= chart.config.compFilter[1]);
 
-            return comp_flag & incidence_flag
-            }
-        );
+        //     return comp_flag & incidence_flag;
+        // });
     }
 
-    chart.draw(chart.raw,groups, pairs)
-}
+    function makeTestControl() {
+        var tests = this.anly.map(function(m) {
+            return m.key;
+        });
+        var wrap = this.controls.append('div').attr('class', 'slider-wrap');
+
+        wrap.append('span')
+            .attr('class', 'label')
+            .text('Select Test');
+        wrap.append('br');
+        var test_control = wrap.append('select');
+        test_control
+            .selectAll('option')
+            .data(tests)
+            .enter('append')
+            .append('option')
+            .text(function(d) {
+                return d;
+            });
+        test_control.on('change', function() {
+            var current = this.value;
+            d3.selectAll('div.tableWrap').classed('hidden', function(d) {
+                return d != current;
+            });
+        });
+    }
+
+    function forestPlot(data) {
+        var element = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'body';
+        var settings = arguments[2];
+
+        console.log(settings);
+        var chart = {
+            raw: data,
+            element: element,
+            config: settings
+        };
+
+        layout.call(chart);
+        processData.call(chart);
+        makeScales.call(chart);
+        makeTestControl.call(chart);
+        draw.call(chart);
+        makeFilterControls.call(chart, chart.anly[0]);
+    }
+
+    return forestPlot;
+});

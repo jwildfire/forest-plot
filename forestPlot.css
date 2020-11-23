@@ -1,5 +1,9 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,300);
 
+.hidden{
+    display:none;
+}
+
 * {
     padding: 0;
     margin: 0;
@@ -30,17 +34,25 @@
     border-radius:0.2em
 }
 
+#container {
+    width: 96%;
+    margin: 12px 2%;
+    display: inline-block;
+}
+
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,300);
+
+* {
+    padding: 0;
+    margin: 0;
+    font-family: 'Open Sans';
+}
+
 #details {
     color:#999;
     font-size:small;
     margin: 0 2% 12px 2%;
     border-radius:0.2em
-}
-
-#container {
-    width: 96%;
-    margin: 12px 2%;
-    display: inline-block;
 }
 
 .slider-wrap{
