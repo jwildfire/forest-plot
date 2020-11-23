@@ -396,7 +396,7 @@
             .y(function(d) {
                 return d.y;
             })
-            .interpolate('linear-closed');
+            .interpolate('linear-closed')
 
         diffPoints
             .append('svg:path')
