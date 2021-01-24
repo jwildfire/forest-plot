@@ -366,9 +366,11 @@
             })
             .enter()
             .append('g')
+            .attr('class', 'diffg')
             .attr('transform', function(d, i) {
                 return 'translate(0, ' + i * 15 + ')';
-            });
+            })
+            .attr('cursor', 'help');
 
         diffPoints
             .append('line')
@@ -383,7 +385,8 @@
             .attr('y2', 20 / 2)
             .attr('stroke-width', '1px')
             .attr('stroke', 'black')
-            .attr('opacity', '0.4');
+            .attr('opacity', '0.4')
+            .append('title');
 
         //diffPoints.append('title').text(d => d[config.group1_col]+" vs. " + ': ' + d.or + ' (p=' + d.p + ')');
 
@@ -396,7 +399,7 @@
             .y(function(d) {
                 return d.y;
             })
-            .interpolate('linear-closed')
+            .interpolate('linear-closed');
 
         diffPoints
             .append('svg:path')
@@ -453,6 +456,19 @@
                 return chart.colorScale(d[config.group2_col]);
             })
             .attr('stroke-opacity', 0.3);
+
+        diffPoints.append('title').text(function(d) {
+            return (
+                d.comp +
+                ': p ' +
+                parseInt(d.Pvalue).toFixed(2) +
+                ', CI [' +
+                parseInt(d.CI_Lower).toFixed(2) +
+                ', ' +
+                parseInt(d.CI_Upper).toFixed(2) +
+                ']'
+            );
+        });
     }
 
     function makeHeader(testData) {

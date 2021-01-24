@@ -100,9 +100,11 @@ export default function makeBody(testData) {
         .data(d => d.values.comparison.filter(f => f.result_text != '-'))
         .enter()
         .append('g')
+        .attr('class', 'diffg')
         .attr('transform', function(d, i) {
             return `translate(0, ${i * 15})`;
-        });
+        })
+        .attr('cursor', 'help');
 
     diffPoints
         .append('line')
@@ -113,7 +115,8 @@ export default function makeBody(testData) {
         .attr('y2', 20 / 2)
         .attr('stroke-width', '1px')
         .attr('stroke', 'black')
-        .attr('opacity', '0.4');
+        .attr('opacity', '0.4')
+        .append('title');
 
     //diffPoints.append('title').text(d => d[config.group1_col]+" vs. " + ': ' + d.or + ' (p=' + d.p + ')');
 
@@ -169,4 +172,13 @@ export default function makeBody(testData) {
         .attr('fill', d => chart.colorScale(d[config.group2_col]))
         .attr('stroke', d => chart.colorScale(d[config.group2_col]))
         .attr('stroke-opacity', 0.3);
+
+    diffPoints
+        .append('title')
+        .text(
+            d =>
+                `${d.comp}: p: ${parseInt(d.Pvalue).toFixed(2)}, CI: [${parseInt(d.CI_Lower).toFixed(
+                    2
+                )}, ${parseInt(d.CI_Upper).toFixed(2)}]`
+        );
 }
