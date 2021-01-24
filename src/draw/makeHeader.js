@@ -31,7 +31,7 @@ export default function makeHeader(testData) {
         .axis()
         .scale(chart.rateScale)
         .ticks(3)
-        //.format('0.1%')
+        .tickFormat(d => d * 100)
         .orient('top');
 
     table.head2
