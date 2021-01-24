@@ -460,9 +460,9 @@
         diffPoints.append('title').text(function(d) {
             return (
                 d.comp +
-                ': p ' +
+                ' p: ' +
                 parseInt(d.Pvalue).toFixed(2) +
-                ', CI [' +
+                ', CI: [' +
                 parseInt(d.CI_Lower).toFixed(2) +
                 ', ' +
                 parseInt(d.CI_Upper).toFixed(2) +
