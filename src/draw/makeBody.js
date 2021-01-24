@@ -177,7 +177,7 @@ export default function makeBody(testData) {
         .append('title')
         .text(
             d =>
-                `${d.comp}: p: ${parseInt(d.Pvalue).toFixed(2)}, CI: [${parseInt(d.CI_Lower).toFixed(
+                `${d.comp} p: ${parseInt(d.Pvalue).toFixed(2)}, CI: [${parseInt(d.CI_Lower).toFixed(
                     2
                 )}, ${parseInt(d.CI_Upper).toFixed(2)}]`
         );
