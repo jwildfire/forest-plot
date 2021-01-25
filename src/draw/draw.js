@@ -11,8 +11,6 @@ export function draw() {
     let chart = this;
 
     chart.anly.forEach(function(testData, i) {
-        console.log('maya');
-        console.log(chart.config);
         testData.wrap = chart.wrap
             .append('div')
             .attr('class', 'tableWrap')
