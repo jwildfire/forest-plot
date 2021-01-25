@@ -65,16 +65,17 @@ export default function makeFilterControls(testData) {
     //     let incidence_flag =
     //         (incidence_max >= chart.config.incidenceFilter[0]) &
     //         (incidence_max <= chart.config.incidenceFilter[1]);
-
     //     let comp_vals = data.filter(function(d, i) {
+    //         // 2 + 3 + 1 = 6?
     //         let first_comp = 2 + config.groups.length + 1;
+    //         // 5 + 3 = 8 ?
     //         let last_comp = first_comp + config.pairs.length;
+    //         console.log((i >= first_comp) & (i < last_comp));
     //         return (i >= first_comp) & (i < last_comp);
     //     });
     //     let comp_max = d3.max(comp_vals, d => (d == '-' ? 0 : +d));
     //     let comp_flag =
     //         (comp_max >= chart.config.compFilter[0]) & (comp_max <= chart.config.compFilter[1]);
-
     //     return comp_flag & incidence_flag;
     // });
 }

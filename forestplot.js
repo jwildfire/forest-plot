@@ -396,7 +396,7 @@
             .y(function(d) {
                 return d.y;
             })
-            .interpolate('linear-closed')
+            .interpolate('linear-closed');
 
         diffPoints
             .append('svg:path')
@@ -532,10 +532,20 @@
             .call(testAxis);
     }
 
+    function range(start, end) {
+        return Array(end - start + 1)
+            .fill()
+            .map(function(_, idx) {
+                return start + idx;
+            });
+    }
+
     function draw() {
         var chart = this;
 
         chart.anly.forEach(function(testData, i) {
+            console.log('maya');
+            console.log(chart.config);
             testData.wrap = chart.wrap
                 .append('div')
                 .attr('class', 'tableWrap')
@@ -553,14 +563,42 @@
                     paging: false,
                     order: [[2, 'desc']],
                     columnDefs: [
-                        { width: '120px', targets: 2 + chart.config.groups.length },
+                        {
+                            width: '120px',
+                            targets: 2 + chart.config.groups.length
+                        },
                         {
                             width: '300px',
                             targets: 2 + chart.config.groups.length + 1 + chart.config.pairs.length
+                        },
+                        {
+                            targets: range(
+                                2 + chart.config.groups.length + 1,
+                                2 + chart.config.groups.length + 1 + chart.config.pairs.length - 1
+                            ),
+                            render: function render(data, type, row) {
+                                if (type === 'sort') {
+                                    var sortValue = data;
+                                    switch (data) {
+                                        case NaN:
+                                            sortValue = -999997;
+                                            break;
+                                        case 'NaN':
+                                            sortValue = -999998;
+                                            break;
+                                        case '-':
+                                            sortValue = -999999;
+                                            break;
+                                    }
+                                    return sortValue;
+                                } else {
+                                    return data;
+                                }
+                            }
                         }
                     ]
                 })
-                .columns.adjust()
+                //.columns.adjust()
                 .draw();
         });
     }
@@ -810,16 +848,17 @@
         //     let incidence_flag =
         //         (incidence_max >= chart.config.incidenceFilter[0]) &
         //         (incidence_max <= chart.config.incidenceFilter[1]);
-
         //     let comp_vals = data.filter(function(d, i) {
+        //         // 2 + 3 + 1 = 6?
         //         let first_comp = 2 + config.groups.length + 1;
+        //         // 5 + 3 = 8 ?
         //         let last_comp = first_comp + config.pairs.length;
+        //         console.log((i >= first_comp) & (i < last_comp));
         //         return (i >= first_comp) & (i < last_comp);
         //     });
         //     let comp_max = d3.max(comp_vals, d => (d == '-' ? 0 : +d));
         //     let comp_flag =
         //         (comp_max >= chart.config.compFilter[0]) & (comp_max <= chart.config.compFilter[1]);
-
         //     return comp_flag & incidence_flag;
         // });
     }
