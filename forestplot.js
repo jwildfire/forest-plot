@@ -366,9 +366,11 @@
             })
             .enter()
             .append('g')
+            .attr('class', 'diffg')
             .attr('transform', function(d, i) {
                 return 'translate(0, ' + i * 15 + ')';
-            });
+            })
+            .attr('cursor', 'help');
 
         diffPoints
             .append('line')
@@ -396,7 +398,7 @@
             .y(function(d) {
                 return d.y;
             })
-            .interpolate('linear-closed')
+            .interpolate('linear-closed');
 
         diffPoints
             .append('svg:path')
@@ -453,6 +455,25 @@
                 return chart.colorScale(d[config.group2_col]);
             })
             .attr('stroke-opacity', 0.3);
+
+        diffPoints.append('title').text(function(d) {
+            console.log(d);
+            var p = +d.Pvalue < 0.01 ? '<0.01' : '' + parseFloat(d.Pvalue).toFixed(2);
+            return (
+                d.comp +
+                ' - ' +
+                d.Test +
+                ': ' +
+                parseFloat(d.Res).toFixed(2) +
+                ' [' +
+                parseFloat(d.CI_Lower).toFixed(2) +
+                ', ' +
+                parseFloat(d.CI_Upper).toFixed(2) +
+                '], p: ' +
+                p +
+                ','
+            );
+        });
     }
 
     function makeHeader(testData) {
