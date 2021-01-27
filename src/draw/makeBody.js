@@ -97,7 +97,16 @@ export default function makeBody(testData) {
 
     var diffPoints = diffPlots
         .selectAll('g')
-        .data(d => d.values.comparison.filter(f => f.result_text != '-'))
+        .data(d =>
+            d.values.comparison
+                .filter(f => f.result_text != '-')
+                .filter(function(d) {
+                    return !isNaN(d[config.result_upper_col]);
+                })
+                .filter(function(d) {
+                    return !isNaN(d[config.result_lower_col]);
+                })
+        )
         .enter()
         .append('g')
         .attr('class', 'diffg')
@@ -110,7 +119,7 @@ export default function makeBody(testData) {
         .append('line')
         .attr('class', 'ci')
         .attr('x1', d => table.testScale(d[config.result_upper_col]))
-        .attr('x2', d => table.testScale(d.result_lower_col))
+        .attr('x2', d => table.testScale(d[config.result_lower_col]))
         .attr('y1', 20 / 2)
         .attr('y2', 20 / 2)
         .attr('stroke-width', '1px')

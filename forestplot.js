@@ -360,9 +360,16 @@
         var diffPoints = diffPlots
             .selectAll('g')
             .data(function(d) {
-                return d.values.comparison.filter(function(f) {
-                    return f.result_text != '-';
-                });
+                return d.values.comparison
+                    .filter(function(f) {
+                        return f.result_text != '-';
+                    })
+                    .filter(function(d) {
+                        return !isNaN(d[config.result_upper_col]);
+                    })
+                    .filter(function(d) {
+                        return !isNaN(d[config.result_lower_col]);
+                    });
             })
             .enter()
             .append('g')
@@ -379,7 +386,7 @@
                 return table.testScale(d[config.result_upper_col]);
             })
             .attr('x2', function(d) {
-                return table.testScale(d.result_lower_col);
+                return table.testScale(d[config.result_lower_col]);
             })
             .attr('y1', 20 / 2)
             .attr('y2', 20 / 2)
@@ -457,7 +464,6 @@
             .attr('stroke-opacity', 0.3);
 
         diffPoints.append('title').text(function(d) {
-            console.log(d);
             var p = +d.Pvalue < 0.01 ? '<0.01' : '' + parseFloat(d.Pvalue).toFixed(2);
             return (
                 d.comp +
@@ -470,8 +476,7 @@
                 ', ' +
                 parseFloat(d.CI_Upper).toFixed(2) +
                 '], p: ' +
-                p +
-                ','
+                p
             );
         });
     }
