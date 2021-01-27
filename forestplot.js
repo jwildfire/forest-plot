@@ -385,8 +385,7 @@
             .attr('y2', 20 / 2)
             .attr('stroke-width', '1px')
             .attr('stroke', 'black')
-            .attr('opacity', '0.4')
-            .append('title');
+            .attr('opacity', '0.4');
 
         //diffPoints.append('title').text(d => d[config.group1_col]+" vs. " + ': ' + d.or + ' (p=' + d.p + ')');
 
@@ -458,15 +457,21 @@
             .attr('stroke-opacity', 0.3);
 
         diffPoints.append('title').text(function(d) {
+            console.log(d);
+            var p = +d.Pvalue < 0.01 ? '<0.01' : '' + parseFloat(d.Pvalue).toFixed(2);
             return (
                 d.comp +
-                ' p: ' +
-                parseInt(d.Pvalue).toFixed(2) +
-                ', CI: [' +
-                parseInt(d.CI_Lower).toFixed(2) +
+                ' - ' +
+                d.Test +
+                ': ' +
+                parseFloat(d.Res).toFixed(2) +
+                ' [' +
+                parseFloat(d.CI_Lower).toFixed(2) +
                 ', ' +
-                parseInt(d.CI_Upper).toFixed(2) +
-                ']'
+                parseFloat(d.CI_Upper).toFixed(2) +
+                '], p: ' +
+                p +
+                ','
             );
         });
     }
