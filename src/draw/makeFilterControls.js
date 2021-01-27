@@ -5,7 +5,7 @@ export default function makeFilterControls(testData) {
 
     // make controls
     let indidenceControl = controls.append('div').attr('class', 'slider-wrap');
-    let maxPercent = Math.ceil(chart.rateScale.domain()[1]);
+    let maxPercent = Math.ceil(chart.rateScale.domain()[1] * 100);
     indidenceControl
         .append('label')
         .attr('id', 'incidence-label')
@@ -16,21 +16,21 @@ export default function makeFilterControls(testData) {
         .attr('class', 'label')
         .text('0 - ' + maxPercent);
     indidenceControl.append('div').attr('id', 'incidence-slider');
-    chart.config.incidenceFilter = [0, maxPercent];
+    chart.config.incidenceFilter = [0, maxPercent / 100];
     $('#incidence-slider').slider({
         range: true,
         min: 0,
         max: maxPercent,
         values: [0, maxPercent],
         slide: function(event, ui) {
-            d3.select('#incidence-vals').text(ui.values[0] + ' - ' + ui.values[1]);
+            d3.select('#incidence-vals').text(ui.values[0] / 100 + ' - ' + ui.values[1] / 100);
             chart.config.incidenceFilter = ui.values;
             //    table.draw();
         }
     });
 
     let compControl = controls.append('div').attr('class', 'slider-wrap');
-    let maxOR = Math.ceil(testData.testScale.domain()[1]);
+    let maxOR = Math.ceil(testData.maxResult);
     compControl
         .append('label')
         .attr('id', 'comp-label')

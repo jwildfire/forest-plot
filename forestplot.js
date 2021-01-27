@@ -199,27 +199,30 @@
 
         //Test scale - defined for each test
         chart.anly.forEach(function(testData) {
-            console.log(testData);
             var all_comparisons = d3.merge(
                 testData.values.map(function(m) {
                     return m.values.comparison;
                 })
             );
-            console.log(all_comparisons);
             var all_upper = all_comparisons.map(function(m) {
                 return +m[config.result_upper_col];
             });
             var all_lower = all_comparisons.map(function(m) {
                 return +m[config.result_lower_col];
             });
-            console.log(all_upper);
             var testExtent = [d3.min(all_lower), d3.max(all_upper)];
             //let testExtent = [0, d3.max(all_upper)];
-            console.log(testExtent);
             testData.testScale = d3.scale
                 .linear()
                 .range([10, 290])
                 .domain(testExtent);
+
+            testData.maxResult = d3.max(
+                all_comparisons.map(function(m) {
+                    return +m[config.result_col];
+                })
+            );
+            console.log('max result = ' + testData.maxResult);
         });
     }
 
@@ -457,7 +460,6 @@
             .attr('stroke-opacity', 0.3);
 
         diffPoints.append('title').text(function(d) {
-            console.log(d);
             var p = +d.Pvalue < 0.01 ? '<0.01' : '' + parseFloat(d.Pvalue).toFixed(2);
             return (
                 d.comp +
@@ -470,8 +472,7 @@
                 ', ' +
                 parseFloat(d.CI_Upper).toFixed(2) +
                 '], p: ' +
-                p +
-                ','
+                p
             );
         });
     }
@@ -773,7 +774,7 @@
 
         // make controls
         var indidenceControl = controls.append('div').attr('class', 'slider-wrap');
-        var maxPercent = Math.ceil(chart.rateScale.domain()[1]);
+        var maxPercent = Math.ceil(chart.rateScale.domain()[1] * 100);
         indidenceControl
             .append('label')
             .attr('id', 'incidence-label')
@@ -784,21 +785,21 @@
             .attr('class', 'label')
             .text('0 - ' + maxPercent);
         indidenceControl.append('div').attr('id', 'incidence-slider');
-        chart.config.incidenceFilter = [0, maxPercent];
+        chart.config.incidenceFilter = [0, maxPercent / 100];
         $('#incidence-slider').slider({
             range: true,
             min: 0,
             max: maxPercent,
             values: [0, maxPercent],
             slide: function slide(event, ui) {
-                d3.select('#incidence-vals').text(ui.values[0] + ' - ' + ui.values[1]);
+                d3.select('#incidence-vals').text(ui.values[0] / 100 + ' - ' + ui.values[1] / 100);
                 chart.config.incidenceFilter = ui.values;
                 //    table.draw();
             }
         });
 
         var compControl = controls.append('div').attr('class', 'slider-wrap');
-        var maxOR = Math.ceil(testData.testScale.domain()[1]);
+        var maxOR = Math.ceil(testData.maxResult);
         compControl
             .append('label')
             .attr('id', 'comp-label')

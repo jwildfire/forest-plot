@@ -38,18 +38,17 @@ export default function makeScales() {
 
     //Test scale - defined for each test
     chart.anly.forEach(function(testData) {
-        console.log(testData);
         let all_comparisons = d3.merge(testData.values.map(m => m.values.comparison));
-        console.log(all_comparisons);
         let all_upper = all_comparisons.map(m => +m[config.result_upper_col]);
         let all_lower = all_comparisons.map(m => +m[config.result_lower_col]);
-        console.log(all_upper);
         let testExtent = [d3.min(all_lower), d3.max(all_upper)];
         //let testExtent = [0, d3.max(all_upper)];
-        console.log(testExtent);
         testData.testScale = d3.scale
             .linear()
             .range([10, 290])
             .domain(testExtent);
+
+        testData.maxResult = d3.max(all_comparisons.map(m => +m[config.result_col]));
+        console.log('max result = ' + testData.maxResult);
     });
 }
