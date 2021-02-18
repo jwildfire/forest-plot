@@ -258,6 +258,7 @@
             });
 
         //Group Counts
+
         table.rows
             .selectAll('td.group-count')
             .data(function(d) {
@@ -276,7 +277,8 @@
             .style('cursor', 'help')
             .style('color', function(d) {
                 return chart.colorScale(d.group);
-            });
+            })
+            .classed('hidden', config.hideCounts);
 
         //group plot
         table.groupPlot = table.rows
@@ -494,7 +496,8 @@
         table.head1
             .append('th')
             .text('Groups')
-            .attr('colspan', config.groups.length + 1);
+            .attr('class', 'groupHead')
+            .attr('colspan', config.hideCounts ? 1 : config.groups.length + 1);
         table.head1
             .append('th')
             .text(testData.key)
@@ -508,9 +511,11 @@
             .data(config.groups)
             .enter()
             .append('th')
+            .attr('class', 'group')
             .text(function(d) {
                 return d.group;
-            });
+            })
+            .classed('hidden', config.hideCounts);
 
         var rateAxis = d3.svg
             .axis()
@@ -879,6 +884,32 @@
         });
     }
 
+    function makeCountToggle() {
+        var wrap = this.controls.insert('div', '*').attr('class', 'slider-wrap');
+        var charts = this;
+        var config = charts.config;
+        wrap.append('span')
+            .attr('class', 'label')
+            .text('Show Rates');
+        wrap.append('br');
+        var test_control = wrap.append('input').attr('type', 'checkbox');
+        test_control.on('change', function() {
+            var current = this.checked;
+            console.log('checkbox value is:');
+            console.log(current);
+            console.log(charts);
+            charts.config.hideGroups = !this.checked;
+            charts.anly.forEach(function(chart) {
+                console.log(chart);
+                chart.head1
+                    .selectAll('th.groupHead')
+                    .attr('colspan', config.hideGroups ? 1 : config.groups.length + 1);
+                chart.head2.selectAll('th.group').classed('hidden', config.hideGroups);
+                chart.body.selectAll('td.group-count').classed('hidden', config.hideGroups);
+            });
+        });
+    }
+
     function forestPlot(data) {
         var element = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'body';
         var settings = arguments[2];
@@ -896,6 +927,7 @@
         makeTestControl.call(chart);
         draw.call(chart);
         makeFilterControls.call(chart, chart.anly[0]);
+        makeCountToggle.call(chart);
     }
 
     return forestPlot;
