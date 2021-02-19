@@ -29,6 +29,7 @@ export default function makeBody(testData) {
         .attr('title', d => d.values.low_level_cat);
 
     //Group Counts
+
     table.rows
         .selectAll('td.group-count')
         .data(d => d.values.group)
@@ -39,7 +40,8 @@ export default function makeBody(testData) {
         .text(d => d.percent_text)
         .attr('title', d => d.numerator + '/' + d.denominator)
         .style('cursor', 'help')
-        .style('color', d => chart.colorScale(d.group));
+        .style('color', d => chart.colorScale(d.group))
+        .classed('hidden', config.hideCounts);
 
     //group plot
     table.groupPlot = table.rows
@@ -92,7 +94,7 @@ export default function makeBody(testData) {
         .attr('class', 'diffplot plot')
         .append('svg')
         .attr('height', d => 20 * d.values.comparison.filter(f => f.result_text != '-').length)
-        .attr('width', 300)
+        .attr('width', config.comparisonWidth)
         .append('g');
 
     var diffPoints = diffPlots

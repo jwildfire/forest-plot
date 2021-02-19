@@ -11,7 +11,8 @@ export default function makeHeader(testData) {
     table.head1
         .append('th')
         .text('Groups')
-        .attr('colspan', config.groups.length + 1);
+        .attr('class', 'groupHead')
+        .attr('colspan', config.hideCounts ? 1 : config.groups.length + 1);
     table.head1
         .append('th')
         .text(testData.key)
@@ -25,7 +26,9 @@ export default function makeHeader(testData) {
         .data(config.groups)
         .enter()
         .append('th')
-        .text(d => d.group);
+        .attr('class', 'group')
+        .text(d => d.group)
+        .classed('hidden', config.hideCounts);
 
     var rateAxis = d3.svg
         .axis()
@@ -64,7 +67,7 @@ export default function makeHeader(testData) {
         .attr('class', 'diffs axis')
         .append('svg')
         .attr('height', '20')
-        .attr('width', 300)
+        .attr('width', config.comparisonWidth)
         .append('svg:g')
         .attr('class', 'axis percent')
         .attr('transform', 'translate(0,20)')

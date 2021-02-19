@@ -89,3 +89,7 @@ table.dataTable thead .axis line {
 table.dataTable tbody td.plot{
     padding:10px 18px
 }
+
+.diffs{
+    width:50%
+}
