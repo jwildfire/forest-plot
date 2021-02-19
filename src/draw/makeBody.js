@@ -94,7 +94,7 @@ export default function makeBody(testData) {
         .attr('class', 'diffplot plot')
         .append('svg')
         .attr('height', d => 20 * d.values.comparison.filter(f => f.result_text != '-').length)
-        .attr('width', 300)
+        .attr('width', config.comparisonWidth)
         .append('g');
 
     var diffPoints = diffPlots

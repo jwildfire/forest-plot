@@ -218,7 +218,7 @@
             console.log(testExtent);
             testData.testScale = d3.scale
                 .linear()
-                .range([10, 290])
+                .range([10, config.comparisonWidth - 10])
                 .domain(testExtent);
         });
     }
@@ -356,7 +356,7 @@
                     }).length
                 );
             })
-            .attr('width', 300)
+            .attr('width', config.comparisonWidth)
             .append('g');
 
         var diffPoints = diffPlots
@@ -558,7 +558,7 @@
             .attr('class', 'diffs axis')
             .append('svg')
             .attr('height', '20')
-            .attr('width', 300)
+            .attr('width', config.comparisonWidth)
             .append('svg:g')
             .attr('class', 'axis percent')
             .attr('transform', 'translate(0,20)')

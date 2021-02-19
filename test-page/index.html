@@ -17,7 +17,7 @@
     <body>
       <div id = 'title'>forest-plot</div>
       <div id = 'subtitle'>Example 1</div>
-      <div id= 'info'>This is a demo page for the interactive forest-plot tool, details and documentation are available on <a href="https://github.com/jwildfire/forest-plot">github</a>.</div>
+      <div id= 'info'>This is a demo page for the interactive forest-plot tool, details and documentation are available on <a href="https://github.com/jwildfire/forest-plot">github</a>. Set the comparison chart width to <input class="chartWidth" type="number" value=300></input> pixels.</div>
       <div id = 'container'></div>
     </body>
 
@@ -39,9 +39,16 @@
           result_upper_col:"CI_Upper",
           result_lower_col:"CI_Lower",
           p_col:"Pvalue",
-          hideCounts:true
+          hideCounts:true,
+          comparisonWidth:300
         }
         forestPlot(data, "#container", settings)
+
+        d3.select('input.chartWidth').on("input",function(){
+          d3.select("#container").selectAll("*").remove()
+          settings.comparisonWidth = this.value;
+          forestPlot(data, "#container", settings)
+        })
       });
 </script>
 </html>

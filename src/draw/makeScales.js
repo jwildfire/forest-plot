@@ -49,7 +49,7 @@ export default function makeScales() {
         console.log(testExtent);
         testData.testScale = d3.scale
             .linear()
-            .range([10, 290])
+            .range([10, config.comparisonWidth - 10])
             .domain(testExtent);
     });
 }

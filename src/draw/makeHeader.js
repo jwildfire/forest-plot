@@ -67,7 +67,7 @@ export default function makeHeader(testData) {
         .attr('class', 'diffs axis')
         .append('svg')
         .attr('height', '20')
-        .attr('width', 300)
+        .attr('width', config.comparisonWidth)
         .append('svg:g')
         .attr('class', 'axis percent')
         .attr('transform', 'translate(0,20)')
